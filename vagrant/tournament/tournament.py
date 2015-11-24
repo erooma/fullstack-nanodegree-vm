@@ -34,9 +34,9 @@ def deletePlayers():
 
     conn = connect()
     c = conn.cursor()
-    query1 = "DELETE FROM players;"
+    query1 = "DELETE FROM opponentmw;"
     c.execute(query1)
-    query2 = "DELETE FROM opponentmw;"
+    query2 = "DELETE FROM players;"
     c.execute(query2)   
     conn.commit()
     conn.close()
