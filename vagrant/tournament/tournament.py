@@ -98,9 +98,7 @@ def playerStandings():
 
     conn = connect()
     c = conn.cursor()
-    query = """
-          SELECT players.id, name, wins, no_matches FROM players, opponentmw
-          WHERE opponentmw.id = players.id ORDER BY wins DESC, omw DESC;"""
+    query = "SELECT * FROM standings;"
     c.execute(query)
     rows = c.fetchall()
     conn.close()

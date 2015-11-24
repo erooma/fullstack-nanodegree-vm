@@ -37,3 +37,7 @@ CREATE TABLE opponentMW (
 	id INT REFERENCES players(id), 
 	omw INT DEFAULT 0, PRIMARY KEY(id)
 	);
+
+CREATE VIEW standings AS
+    SELECT players.id, name, wins, no_matches FROM players, opponentmw
+    WHERE opponentmw.id = players.id ORDER BY wins DESC, omw DESC;
