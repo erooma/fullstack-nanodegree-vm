@@ -18,8 +18,12 @@ def deleteMatches():
 
     conn = connect()
     c=conn.cursor()
-    query = "DELETE FROM matches;"
-    c.execute(query)
+    query1 = "DELETE FROM matches;"
+    c.execute(query1)
+    query2 = "DELETE FROM opponentmw;"
+    c.execute(query2)
+    query3 = "UPDATE players SET no_matches=0, wins=0, losses=0, ties=0;"
+    c.execute(query3)
     conn.commit()
     conn.close()
 
@@ -29,8 +33,10 @@ def deletePlayers():
 
     conn = connect()
     c=conn.cursor()
-    query = "DELETE FROM players;"
-    c.execute(query)
+    query1 = "DELETE FROM players;"
+    c.execute(query1)
+    query2 = "DELETE FROM opponentmw;"
+    c.execute(query2)    
     conn.commit()
     conn.close()
 
@@ -60,8 +66,11 @@ def registerPlayer(name):
 
     conn = connect()
     c = conn.cursor()
-    query = "INSERT INTO players (name, no_matches, wins) VALUES (%s, %s, %s);"
-    c.execute(query, [name, 0, 0,])
+    query1 = "INSERT INTO players (name, no_matches, wins, losses, ties) VALUES (%s, %s, %s, %s, %s);"
+    c.execute(query1, [name, 0, 0, 0, 0])
+    conn.commit()
+    query2 = "INSERT INTO opponentmw (id, omw) VALUES ((SELECT id FROM players WHERE name=%s), %s);"
+    c.execute(query2, [name, 0])
     conn.commit()
     conn.close()
     
@@ -82,7 +91,7 @@ def playerStandings():
 
     conn = connect()
     c = conn.cursor()
-    query = "SELECT id, name, wins, no_matches FROM players ORDER BY wins DESC;"
+    query = "SELECT players.id, name, wins, no_matches FROM players,opponentmw WHERE opponentmw.id = players.id ORDER BY wins DESC, omw DESC;"
     c.execute(query)
     rows = c.fetchall()
     conn.close()
@@ -101,12 +110,41 @@ def totalWins():
     return result[0]
 
 
+def opponentMatchWins(player):
+    """Returns the OMW score for each player (the total number of wins by players they have played
+    against).
+
+    Args:
+      the player-id
+    """
+
+    conn = connect()
+    c = conn.cursor()
+    query = "SELECT sum(players.wins) FROM players, matches WHERE (matches.id_1=%s and players.id=matches.id_2) or (matches.id_2=%s and players.id=matches.id_1);"
+    c.execute(query, [player, player])
+    result = c.fetchone()
+    conn.close()
+    return result[0]
+
+
+def totalMatches():
+    """Returns the total number of matches played in the tournament
+    (counted twice per participant and including single 'bye's.)"""
+
+    conn = connect()
+    c = conn.cursor()
+    query = "SELECT SUM(no_matches) FROM players;"
+    c.execute(query)
+    result = c.fetchone()
+    conn.close()
+    return result[0]
+
 def checkMatch(player1, player2):
     """Determines if the two players have been previously matched"""
 
     conn = connect()
     c = conn.cursor()
-    query = "SELECT * FROM matches WHERE ((id_1 = %s and id_2= %s) or (id_1 = %s and id_2 = %s));"
+    query = "SELECT * FROM matches WHERE (id_1 = %s and id_2= %s) or (id_1 = %s and id_2 = %s);"
     c.execute(query, [player1, player2, player2, player1])
     result = c.fetchall()
     conn.close()
@@ -118,50 +156,94 @@ def checkOne(player1, level):
 
     conn = connect()
     c = conn.cursor()
-    query = "SELECT * FROM matches WHERE ((id_1 = %s or id_2= %s) and (round=%s));"
+    query = "SELECT * FROM matches WHERE (id_1 = %s or id_2= %s) and (round=%s);"
     c.execute(query, [player1, player1, level])
     result = c.fetchall()
     conn.close()
     return result  
 
 
-def reportMatch(winner, loser):
-    """Records the outcome of a single match between two players.
+def reportMatch(player1, player2, outcome):
+    """Records the outcome of a single match between two players and updates all tables.
 
     Args:
-      winner:  the id number of the player who won
-      loser:  the id number of the player who lost
+      player1:  the id number of the first player
+      player2:  the id number of the second player
+      (note that the player id's can be in any order)
+      A player id of 0 represents a 'bye' round.
+      outcome: the id number of the winner of the round OR a 0 if the round ended in a tie
     """
-    
-    result = checkMatch(winner, loser)
+
+    if outcome == player1:
+        winner = player1
+        loser = player2
+    else:
+        winner = player2
+        loser = player1
+    result = checkMatch(player1, player2)
     if result==[]:
         conn = connect()
         c = conn.cursor()
         query1 = "INSERT INTO matches (round, match, id_1, id_2, result) VALUES (%s, %s, %s, %s, %s);"
-        c.execute (query1, [0,0, winner, loser, winner])
+        c.execute (query1, [0,0, winner, loser, outcome])
     else:
         conn = connect()
         c = conn.cursor()
-        query1 = "UPDATE matches SET result=%s WHERE ((id_1 = %s and id_2= %s) or (id_1 = %s and id_2 = %s));"
-        c.execute(query1, [winner, winner, loser, loser, winner])
-                  
-    query2 = "UPDATE players SET wins=(SELECT count(matches.result) FROM matches WHERE result=%s) WHERE id=%s;"
-    c.execute(query2, [winner, winner])
-    query3 = "UPDATE players SET no_matches=(SELECT SUM(no_matches+1) FROM players WHERE id=%s) WHERE id=%s;"
-    c.execute(query3, [winner, winner])
-    if loser!=0:
-        c.execute(query3, [loser, loser])
+        query1 = "UPDATE matches SET id_1=%s, id_2=%s, result=%s WHERE id_1 = %s and id_2= %s or id_1 = %s and id_2 = %s;"
+        c.execute(query1, [winner, loser, outcome, winner, loser, loser, winner])
     conn.commit()
     conn.close()
+    
+     
+    if outcome != 0:
+        conn = connect()
+        c = conn.cursor()
+        query2 = "UPDATE players SET wins=wins+1 WHERE id=%s;"
+        c.execute(query2, [outcome])
+        query3 = "UPDATE players SET no_matches=no_matches+1 WHERE id=%s;"
+        c.execute(query3, [outcome])
+        conn.commit()
+        conn.close()
+        if loser !=0:
+            conn = connect()
+            c = conn.cursor()
+            c.execute(query3, [loser])
+            query4 = "UPDATE players SET losses=losses+1 WHERE id=%s;"
+            c.execute(query4, [loser])
+            w_omw = opponentMatchWins(winner)
+            l_omw = opponentMatchWins(loser)
+            query5 = "UPDATE opponentmw SET omw=%s WHERE id=%s;"
+            c.execute(query5, [w_omw, winner])
+            c.execute(query5, [l_omw, loser])
+            conn.commit()
+            conn.close()
+    else:
+        conn = connect()
+        c = conn.cursor()
+        query6 = "UPDATE players SET ties=ties+1 WHERE id=%s;"
+        c.execute(query6, [player1])
+        c.execute(query6, [player2])
+        query7 = "UPDATE players SET no_matches=no_matches+1 WHERE id=%s;"
+        c.execute(query7, [player1])
+        c.execute(query7, [player2])
+        conn.commit()
+        conn.close()
+    
 
 
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
   
     Assuming that there are an even number of players registered, each player
-    appears exactly once in the pairings.  Each player is paired with another
-    player with an equal or nearly-equal win record, that is, a player adjacent
-    to him or her in the standings.
+    appears exactly once in the pairings.  If there is an odd number of players
+    then an odd player is assigned a 'bye' only once per tournament.
+    A 'bye' is reported as an id of 0, with name 'bye'.
+    
+    Each player is paired with another player with an equal or nearly-equal
+    win record, that is, a player adjacent to him or her in the standings. If
+    players have equal wins, they are rated by Opponent Match Wins.
+    
+    For the first round, players are matched randomly.
 
     Function prevents rematches between players during a given round.
   
@@ -174,32 +256,37 @@ def swissPairings():
     """
 
     count = countPlayers()
-    total_wins = totalWins()
     odd_player = count % 2
-    total_rounds = int(math.log(count-odd_player,2))
-    round_no = int(((total_wins+odd_player+(count/2))/((count/2)+odd_player)))
+    adjust = count-odd_player
+    total_matches = totalMatches()
+    matches_count = (total_matches + (total_matches*odd_player)/count)/2
+    total_rounds = int(math.log(adjust,2))
+    round_no = int(total_matches/count) + 1
 
-    if (round_no > total_rounds):
-        conn = connect()
-        c = conn.cursor()
-        query = "SELECT id, name, wins, no_matches FROM players ORDER BY wins DESC LIMIT 1;"
-        c.execute(query)
-        result = c.fetchone()
-        conn.close()
-        print "The tournament is finished! The winner is " + str(result[1]) + ", id# " + str(result[0]) + " with " + str(result[2]) + " wins."
+    if round_no > total_rounds:
+        result = playerStandings()
+        print "The tournament is finished! The winner is " + str(result[0][1]) + ", id# " + str(result[0][0]) + " with " + str(result[0][2]) + " wins."
         return
 
-    elif (round_no == total_rounds) and (total_wins > (((count/2.0)+odd_player)*(total_rounds-1))):
+    elif (round_no == total_rounds) and (matches_count != ((adjust/2)+odd_player)*(round_no-1)):
         print "The last round is currently in play."
         return
                 
-    elif total_wins != ((count/2)+odd_player)*(round_no-1):
+    elif matches_count != ((adjust/2)+odd_player)*(round_no-1):
         print "The current round needs to finish before pairing players."
         return
 
     else:
         matched_players = []
-        result = playerStandings()
+        if round_no != 1:
+            result = playerStandings()
+        else:
+            conn = connect()
+            c = conn.cursor()
+            query = "SELECT id, name, wins, no_matches FROM players ORDER BY RANDOM() LIMIT " + str(count) + ";"
+            c.execute(query)
+            result = c.fetchall()
+            conn.close()
         x=0
         m=1
         for row in result:
@@ -214,22 +301,26 @@ def swissPairings():
                         query = "INSERT INTO matches (round, match, id_1, id_2, result) VALUES (%s, %s, %s, %s, null);"
                         c.execute(query, [round_no, m, row[0], 0])
                         conn.commit()
+                        conn.close()
                         m=m+1
-                        reportMatch(row[0],0)
-                if (row[0]!= result[x][0]) and (checkOne(result[x][0], round_no)==[]) and (row[2]==result[x][2]):             
+                        reportMatch(row[0], 0, row[0])
+                if (row[0]!= result[x][0]) and (checkOne(result[x][0], round_no)==[]):             
                     matched_players.append((row[0], row[1], result[x][0], result[x][1]))
                     conn = connect() 
                     c = conn.cursor()
                     query = "INSERT INTO matches (round, match, id_1, id_2, result) VALUES (%s, %s, %s, %s, null);"
                     c.execute(query, [round_no, m, row[0], result[x][0]])
                     conn.commit()
+                    conn.close()
                     m=m+1
                 else:
-                    x=x+1
-           
-        conn.close()
+                    x=x+1    
         return matched_players
 
+
+
+
+                       
 
 
 
