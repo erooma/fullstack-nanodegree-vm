@@ -1,4 +1,4 @@
-rdb-fullstack
-=============
+Please note:
 
-Common code for the Relational Databases and Full Stack Fundamentals courses
+Files relating to the tournament database project may be found under /vagrant/tournament.
+
