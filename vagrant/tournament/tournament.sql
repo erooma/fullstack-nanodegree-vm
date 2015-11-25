@@ -1,10 +1,8 @@
--- Table definitions for the tournament project.
---
--- Put your SQL 'create table' statements in this file; also 'create view'
--- statements if you choose to use it.
---
--- You can write comments in this file by starting them with two dashes, like
--- these lines here.
+-- Table and view definitions for the tournament project
+-- 25/11/2015 Andrew Moore
+
+-- remove any duplicate database
+DROP DATABASE IF EXISTS tournament;
 
 -- create a database called tournament
 CREATE DATABASE tournament;
@@ -15,7 +13,7 @@ CREATE DATABASE tournament;
 -- create a table of players with serial additions
 CREATE TABLE players (
 	id SERIAL,
-	name TEXT, 
+	name TEXT NOT NULL, 
 	no_matches INT DEFAULT 0, 
 	wins INT DEFAULT 0, 
 	losses INT DEFAULT 0, 
@@ -27,10 +25,11 @@ CREATE TABLE players (
 CREATE TABLE matches (
 	round INT, 
 	match INT, 
-	id_1 INT REFERENCES players(id),
-	id_2 INT REFERENCES players(id), 
-	result INT, CONSTRAINT competitors 
-	PRIMARY KEY (id_1, id_2, round)
+	id_1 INT REFERENCES players(id) ON DELETE CASCADE,
+	id_2 INT REFERENCES players(id) ON DELETE CASCADE, 
+	result INT, 
+	CHECK (id_1 <> id_2),
+	CONSTRAINT competitors PRIMARY KEY (id_1, id_2, round)
 	);
 
 CREATE TABLE opponentMW (

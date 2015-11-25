@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #
 # Test cases for tournament.py
+# Modified from original, 25/11/2015 Andrew Moore
 
 from tournament import *
 
