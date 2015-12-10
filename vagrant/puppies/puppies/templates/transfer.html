@@ -1,0 +1,83 @@
+<html>
+<head>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+<style>
+body {
+    position: relative;
+}
+.adopt {
+    float: left;
+    width: 150px;
+    font-family:Gotham, 'Helvetica Neue', Helvetica, Arial,
+    sans-serif;
+    font-weight:bold;
+    height: 150px;
+    border: 2px solid grey;
+    position: relative;
+    text-align: left;
+    background-image: url('/static{{puppy.stats.picture}}');
+    background-size: 150px 150px;
+    background-repeat: no-repeat;
+    margin: 5px;
+}
+.shelter {
+    width: 500px;
+    font-family:Gotham, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    height: 140px;
+    margin: 4px;
+    border: 2px solid grey;
+    position: relative;
+    text-align: left;
+    font-size: 0.9em;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+.shelter select {
+    width: 120px;
+    margin-right: 10px;
+}
+.clear {
+    clear: both;
+    margin-left: 6px;
+}
+#transferPuppy {
+    position:absolute;
+    bottom: 10px;
+    right: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Here is the puppy that you chose to transfer.</h1><br />
+
+<div class='adopt'></div>
+<h4>Name: {{puppy.name}}</h4>
+<p>Gender: {{puppy.gender}}<br />
+Date of birth: {{puppy.dateOfBirth}}<br />
+Current shelter: {{puppy.shelter_id}}</p>
+
+
+<div class="clear">
+<h2>Here are the available shelters for transfer.</h2>
+</div>
+{% for shelter in shelters %}
+<div class='shelter' id='shelter{{shelter.id}}'>
+<p style="float: right;">Shelter no.: {{shelter.id}}<br />Occupancy: {{shelter.occupancy}}<br /> Capacity: {{shelter.capacity}}</p>
+<form action="{{url_for('transfer', puppy_id=puppy.id)}}" method = 'post' id='transferPuppy'>
+<input type="hidden" value="{{shelter.id}}" name="shelter">
+<input type="submit" value="Transfer here">
+</form>
+<h4>{{shelter.name}}</h4>
+<p>{{shelter.address}}<br />
+{{shelter.city}}<br />
+{{shelter.state}}<br />
+{{shelter.zipcode}}<br />
+Website: {{shelter.website}}</p>
+</div> 
+{% endfor %}
+<br />
+<a href="{{url_for ('idShelters', shelter=puppy.shelter_id)}}"><input type="button" value="Cancel" /></a>
+</body>
+</html>

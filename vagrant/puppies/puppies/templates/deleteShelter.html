@@ -1,0 +1,50 @@
+<html>
+<head>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+<style>
+body {
+    position: relative;
+}
+.shelter {
+    width: 500px;
+    font-family:Gotham, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    height: 140px;
+    margin: 4px;
+    border: 2px solid grey;
+    position: relative;
+    text-align: left;
+    font-size: 0.9em;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+#deleteShelter {
+    margin-right: 10px;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+</style>
+</head>
+
+<body>
+
+
+<h1>Here is the shelter that you wish to delete.</h1><br />
+
+<div class='shelter' id='shelter{{shelter.id}}'>
+<p style="float: right;">Occupancy: {{shelter.occupancy}}<br /> Capacity: {{shelter.capacity}}</p>
+<form action="{{url_for('deleteShelter', shelter_id=shelter.id)}}" method = 'post' id='deleteShelter'>
+<input type="hidden" value="{{shelter.id}}" name="id">
+<input type = 'submit' value='Delete'>
+<a href = "{{ url_for('shelters')}}"><input type="button" value="Cancel" /></a>
+</form>
+<h4>{{shelter.name}}</h4>
+<p>{{shelter.address}}<br />
+{{shelter.city}}<br />
+{{shelter.state}}<br />
+{{shelter.zipcode}}<br />
+Website: {{shelter.website}}</p>
+</div> 
+
+</body>
+</html>

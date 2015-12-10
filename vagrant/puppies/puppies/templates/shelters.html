@@ -1,0 +1,67 @@
+<html>
+<head>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+<style>
+body {
+    position: relative;
+}
+.shelter {
+    width: 500px;
+    font-family:Gotham, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    height: 140px;
+    margin: 4px;
+    border: 2px solid grey;
+    position: relative;
+    text-align: left;
+    font-size: 0.9em;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+.shelter select {
+    width: 120px;
+    margin-right: 10px;
+}
+</style>
+</head>
+
+<body>
+
+
+<h1>Here are all the shelters.</h1><br />
+
+<div class = 'flash' style="width: 500px;">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+        {% for message in messages %}
+            <li> <strong> {{ message }} </strong> </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+</div>
+
+<h2>Click <a href='/shelters/new'>here</a> if you wish to add a new shelter. Here are all of our <a href='/puppies'>puppies</a>.</h2><br />
+<h2>Choose the dropdown to see the options for each shelter.<br />
+You will not be able to delete a shelter that still contains puppies.</h2>
+{% for shelter in shelters %}
+<div class='shelter' id='shelter{{shelter.id}}'>
+<p style="float: right;">Shelter no.: {{shelter.id}}<br />Occupancy: {{shelter.occupancy}}<br /> Capacity: {{shelter.capacity}}<br /><br />
+<select onChange="window.location.href=this.value">
+<option value"Please choose:">Please choose:</option>
+<option value='{{ url_for("idShelters", shelter=shelter.id)}}'>Edit/transfer/remove puppies</option><br />
+<option value='{{ url_for("idShelters", shelter=shelter.id)}}'>View or Adopt puppies</option><br />
+<option value='{{ url_for("editShelter", shelter_id=shelter.id)}}'>Edit this shelter</option><br />
+<option value='{{ url_for("deleteShelter", shelter_id=shelter.id)}}'>Delete this shelter!</option><br />
+</select></p>
+<h4>{{shelter.name}}</h4>
+<p>{{shelter.address}}<br />
+{{shelter.city}}<br />
+{{shelter.state}}<br />
+{{shelter.zipcode}}<br />
+Website: {{shelter.website}}</p>
+</div> 
+{% endfor %}
+
+</body>
+</html>

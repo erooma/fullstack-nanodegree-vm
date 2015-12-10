@@ -1,0 +1,63 @@
+<html>
+<head>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+<style>
+body {
+    position: relative;
+}
+.adopt {
+    float: left;
+    width: 150px;
+    font-family:Gotham, 'Helvetica Neue', Helvetica, Arial,
+    sans-serif;
+    font-weight:bold;
+    height: 150px;
+    border: 2px solid grey;
+    position: relative;
+    text-align: left;
+    background-image: url('/static{{puppy.stats.picture}}');
+    background-size: 150px 150px;
+    background-repeat: no-repeat;
+    margin: 5px;
+}
+
+.links {
+    font-size: 0.9em;
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+    margin-left: 15px;   
+}
+.place {
+    position: absolute;
+    top: 240px;
+    left: 10px;
+    padding: 0px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Here is the puppy that you chose to modify.</h1><br />
+
+<form action="{{url_for('editPuppy', puppy_id=puppy.id)}}" method = 'post' id='editPuppy'>
+<p>Name:</p>
+<input type = 'text' size='30' name='name' value="{{puppy.name}}">
+<p>Gender:</p>
+<input type = 'text' size='30' name='gender' value="{{puppy.gender}}">
+<p>Date of birth (YYYY-MM-DD):</p>
+<input type = 'text' size='30' name='dateOfBirth' value="{{puppy.dateOfBirth}}">
+<p>Weight (lbs):</p>
+<input type = 'text' size='30' name='weight' value="{{puppy.weight}}"><br /><br />
+<p>Any particular needs that your puppy might have?</p>
+<textarea size='500' name='needs' rows='10' cols='100' form='editPuppy'>{{puppy.stats.needs}}</textarea><br />
+<!-- <p>Do you happen to have a picture of your puppy?</p>
+<input type = 'text' size='500' name='stats.needs'><br /> -->
+<br />
+
+<input type = 'submit' value='Modify'>
+<a href = "{{ url_for('idShelters', shelter=puppy.shelter_id)}}"><input type="button" value="Cancel" /></a>
+</form>
+</body>
+</html>

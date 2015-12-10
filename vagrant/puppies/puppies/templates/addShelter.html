@@ -1,0 +1,52 @@
+<html>
+<head>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+<style>
+body {
+    position: relative;
+}
+.newShelter {
+    width: 600px;
+    font-family:Gotham, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    height: 700px;
+    margin: 4px;
+    border: 2px solid grey;
+    position: relative;
+    text-align: left;
+    font-size: 1.1em;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+</style>
+</head>
+
+<body>
+
+
+<h1>Please add a shelter using the following form.</h1><br />
+<div class='newShelter'>
+<form action="{{url_for('addShelter')}}" method = 'post' id='newShelter'>
+<p>Name of shelter:</p>    
+    <input type="text" size="50" maxlength="80" name="name">
+<p>Address of shelter:</p>
+    <textarea size='250' name='address' rows='5' cols='52' form='newShelter'></textarea>
+<p>City:</p>
+    <input type="text" size="50" name="city">
+<p>State (2 letter abbreviation):</p>
+    <input type="text" size="2" name="state">
+<p>Zipcode (5 numbers):</p>
+    <input type="text" size="5" name="zipcode">
+<p>Website:</p>
+    <input type="text" size="50" maxlength="250" name="website">
+<p>Occupancy=0 for a new shelter.</p>
+<p> Capacity:</p>
+    <input type="number" name="capacity" style="width:50px">
+<br />
+<br />
+<input type = 'submit' value='Create'>
+<a href = "{{ url_for('shelters')}}"><input type="button" value="Cancel" /></a>
+</form>
+</div> 
+
+</body>
+</html>

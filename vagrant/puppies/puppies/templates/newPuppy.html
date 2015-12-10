@@ -1,0 +1,28 @@
+<html>
+<head>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+<h1>New Puppy</h1>
+
+<form action="{{url_for('newPuppy', shelter_id=shelter_id)}}" method = 'post' id='newPuppy'>
+<p>Name:</p>
+<input type = 'text' size='30' name='name'>
+<p>Gender:</p>
+<input type = 'text' size='30' name='gender' >
+<p>Date of birth (YYYY-MM-DD):</p>
+<input type = 'text' size='30' name='dateOfBirth'>
+<p>Weight (lbs):</p>
+<input type = 'text' size='30' name='weight'><br /><br />
+<p>Any particular needs that your puppy might have?</p>
+<textarea size='500' name='needs' rows='10' cols='100' form='newPuppy'></textarea><br />
+<!-- <p>Do you happen to have a picture of your puppy?</p>
+<input type = 'text' size='500' name='stats.needs'><br /> -->
+<br />
+
+<input type = 'submit' value='Create'>
+<a href = "{{ url_for('puppies')}}"><input type="button" value="Cancel" /></a>
+</form>
+</body>
+</html>

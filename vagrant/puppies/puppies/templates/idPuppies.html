@@ -1,0 +1,136 @@
+<html>
+<head>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+<style>
+body {
+    position: relative;
+}
+.pup {
+    float: left;
+    width: 225px;
+    font-family:Gotham, 'Helvetica Neue', Helvetica, Arial,
+    sans-serif;
+    font-weight:bold;
+    height: 150px;
+    margin: 4px;
+    border: 2px solid grey;
+    padding: 12px;
+    position: relative;
+    text-align: left;
+}
+.pup p {
+    margin-left: 140px;
+    font-size: 0.9em;
+}
+.links {
+    position: absolute;
+    right: 20px;
+}
+.links option {
+    font-size: 0.8em;
+}
+{% for puppy in puppies %}
+#pup{{puppy.id}} {
+    background-image: url('/static{{puppy.stats.picture}}');
+    background-size: 125px 125px;
+    background-repeat: no-repeat;
+}
+{% endfor %}
+.name {
+    position: absolute;
+    bottom: -5px;
+    left: 45px;
+    padding: 0px;
+}
+.remove {
+    position: absolute;
+    bottom: 14px;
+    left: 150px;
+    padding: 0px;
+    width: 54px;
+}
+.pagination {
+    color: white;
+    font-size: 1.1em;
+    clear: both;
+}
+.box {
+    height: 24px;
+    width: 30px;
+    background-color: #333333;
+    color: white;
+    border: 1px solid grey;
+    float: left;
+    text-align: center;
+    padding-top: 10px;
+}
+.box2 {
+    height: 24px;
+    width: 60px;
+    background-color: #333333;
+    color: white;
+    border: 1px solid grey;
+    float: left;
+    text-align: center;
+    padding-top: 10px;
+}.ellipsis {
+    float: left;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Here are all the puppies in shelter {{shelter}}!</h1><br />
+<div class = 'flash' style="width: 500px;">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+        {% for message in messages %}
+            <li> <strong> {{ message }} </strong> </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+</div>
+
+<h2>Choose from the dropdown menus or return to our <a href='/shelters'>shelters</a> page.</h2><br />
+{% for puppy in puppies %}
+<div class='pup' id='pup{{puppy.id}}'>
+<div class='name'><h4>{{puppy.name}}</h4></div>
+<p>{{puppy.gender}}<br />
+{{puppy.weight}} lbs<br />
+{{puppy.dateOfBirth}}</p>
+<div class='links'>
+    <select onChange="window.location.href=this.value">
+    <option value="Selection">Selection</option>
+    <option value="{{ url_for('editPuppy', puppy_id=puppy.id) }}">Modify</option>
+    <option value="{{ url_for('adopt', value=puppy.id) }}">Adopt</option>
+    <option value="{{ url_for('transfer', puppy_id=puppy.id) }}">Transfer</option>
+    <option value="{{ url_for('deletePuppy', puppy_id=puppy.id) }}">Remove</option>
+    </select>
+</div>
+</div>
+{% endfor %}
+
+<div class='pagination'>
+<div class="ellipsis" style="border:none; color: #FFFFCC; padding-top: 6px;">Page &nbsp;&nbsp;</div>
+
+{% for page in pagination.iter_pages() %}
+    {% if page %}
+      {% if page != pagination.page %}
+<div class="box"><a href="{{ url_for('idShelters', page=page, shelter=shelter) }}">{{ page }}</a></div>
+      {% else %}
+    <strong class="box" style="border:none; color: #FFFFCC; padding-top: 6px;">{{ page }}</strong>
+      {% endif %}
+    {% else %}
+    <span class='ellipsis'>…</span>
+    {% endif %}
+  {% endfor %}
+  {% if pagination.has_next %}
+<div class="box2"><a href="{{ url_for('idShelters', page=pagination.page + 1, shelter=shelter)}}">Next &nbsp;&raquo;</a></div>
+  {% endif %}
+</div>
+
+</body>
+</html>

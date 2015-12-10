@@ -1,0 +1,68 @@
+<html>
+<head>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+<style>
+body {
+    position: relative;
+}
+.shelter {
+    width: 500px;
+    font-family:Gotham, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    height: 140px;
+    margin: 4px;
+    border: 2px solid grey;
+    position: relative;
+    text-align: left;
+    font-size: 1.1em;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+</style>
+</head>
+
+<body>
+
+
+
+<h1>Here are all the shelters.</h1><br />
+<h2>Click <a href='/shelters/new'>here</a> if you wish to add a new shelter. Here are all of our <a href='/puppies'>puppies</a>.</h2>
+
+<div class = 'flash' style="width: 500px;">
+              {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          
+        <ul>
+        {% for message in messages %}
+            <li> <strong> {{ message }} </strong> </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+
+</div>
+
+<h2>Click on the shelter where you wish to add the puppy.<br />
+You will not be able to add the puppy to a shelter at capacity.</h2><br />
+{% for shelter in shelters %}
+
+<div class='shelter' id='shelter{{shelter.id}}'>
+<a href='/puppies/shelter?shelter_id={{shelter.id}}'><p style="float: right;">Occupancy: {{shelter.occupancy}}<br /> Capacity: {{shelter.capacity}}</p>
+<h4>{{shelter.name}}</h4>
+<p>{{shelter.address}}<br />
+{{shelter.city}}<br />
+{{shelter.state}}<br />
+{{shelter.zipcode}}<br />
+Website: {{shelter.website}}</p>
+<!-- <div class='links'>
+<a href ="#">Edit name</a><br />
+<a href ="#">View and edit menu</a><br />
+<a href ="#">Delete</a><br />
+<br />
+</div> -->
+</a>
+</div> 
+
+{% endfor %}
+
+</body>
+</html>
