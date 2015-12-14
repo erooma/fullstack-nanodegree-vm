@@ -8,19 +8,19 @@ Base = declarative_base()
 class Stats(Base):
     __tablename__ = 'stats'
     id = Column(Integer, primary_key=True)
-    needs = Column(String(500))
+    needs = Column(String(500), default='None')
     picture = Column(String)
-    puppy_id = Column(Integer, ForeignKey('puppy.id'))
+    puppy_id = Column(Integer, ForeignKey('puppy.id'), nullable=False)
+    puppy = relationship("Puppy", backref=backref("stats", uselist=False))
 
 class Puppy(Base):
     __tablename__ = 'puppy'
     id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+    name = Column(String(50), nullable=False)
     gender = Column(String(6), nullable = False)
     dateOfBirth = Column(Date)
     weight = Column(Numeric(10))
     shelter_id = Column(Integer, ForeignKey('shelter.id'))
-    stats = relationship('Stats', uselist=False, backref='puppy')
     adopters = relationship('Adopter', secondary = 'puppy_adopters')
 
 class Shelter(Base):

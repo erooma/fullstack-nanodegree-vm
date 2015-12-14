@@ -17,6 +17,9 @@ body {
     padding-left: 4px;
     padding-right: 4px;
 }
+.errors {
+    color: white;
+}
 </style>
 </head>
 
@@ -25,25 +28,36 @@ body {
 
 <h1>Please edit this shelter using the following form.</h1><br />
 <div class='newShelter'>
-<form action="{{url_for('editShelter', shelter_id=shelter.id)}}" method='post' id='newShelter'>
-<p>Name of shelter:</p>    
+<form action="{{url_for('editShelter', shelter_id=shelter.id)}}" method='POST' id='newShelter'>
+<p>Name of shelter:<br />    
     <input type="text" size="50" maxlength="80" name="name" value='{{shelter.name}}'>
 <p>Address of shelter:<br />
     <textarea size='250' name='address' rows='5' cols='52' form='newShelter'>{{shelter.address}}</textarea></p>
-<p>City:</p>
+<p>City:<br />
     <input type="text" size="50" name="city" value='{{shelter.city}}'>
-<p>State (2 letters):</p>
+<p>State (2 letters):<br />
     <input type="text" size="2" name="state" value='{{shelter.state}}'>
-<p>Zipcode (5 digits):</p>
+<p>Zipcode (5 digits):<br />
     <input type="text" size="5" name="zipcode" value='{{shelter.zipCode}}'>
 
-<p>Website:</p>
+<p>Website:<br />
     <input type="text" size="50" maxlength="250" name="website" value='{{shelter.website}}'>
-<p>Occupancy:<br />
-    <input type="number" name="occupancy" style="width:50px" value='{{shelter.occupancy}}'><br />
+<p>The occupancy must remain at: {{shelter.occupancy}}.<br /><br />
 Capacity:<br />
     <input type="number" name="capacity" style="width:50px" value='{{shelter.capacity}}'></p>
 <br />
+{{ form.csrf_token }}
+
+{% if form.errors %}
+    <ul class="errors">
+        {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+            {% for error in field_errors %}
+                <li>{{ form[field_name].label }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+{% endif %}
+
 <input type = 'submit' value='Submit'>
 <a href = "{{ url_for('shelters')}}"><input type="button" value="Cancel" /></a>
 </form>

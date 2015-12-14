@@ -31,7 +31,7 @@ body {
 }
 {% for puppy in puppies %}
 #pup{{puppy.id}} {
-    background-image: url('/static{{puppy.stats.picture}}');
+    background-image: url('/static/images/{{puppy.stats.picture}}');
     background-size: 125px 125px;
     background-repeat: no-repeat;
 }

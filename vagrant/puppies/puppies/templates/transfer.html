@@ -15,7 +15,7 @@ body {
     border: 2px solid grey;
     position: relative;
     text-align: left;
-    background-image: url('/static{{puppy.stats.picture}}');
+    background-image: url('/static/images/{{puppy.stats.picture}}');
     background-size: 150px 150px;
     background-repeat: no-repeat;
     margin: 5px;
@@ -65,8 +65,9 @@ Current shelter: {{puppy.shelter_id}}</p>
 {% for shelter in shelters %}
 <div class='shelter' id='shelter{{shelter.id}}'>
 <p style="float: right;">Shelter no.: {{shelter.id}}<br />Occupancy: {{shelter.occupancy}}<br /> Capacity: {{shelter.capacity}}</p>
-<form action="{{url_for('transfer', puppy_id=puppy.id)}}" method = 'post' id='transferPuppy'>
-<input type="hidden" value="{{shelter.id}}" name="shelter">
+<form action="{{url_for('transfer', puppy_id=puppy.id)}}" method = 'POST' id='transferPuppy'>
+{{ form.csrf_token }}
+<input type="hidden" value="{{shelter.id}}" name="newShelter">
 <input type="submit" value="Transfer here">
 </form>
 <h4>{{shelter.name}}</h4>

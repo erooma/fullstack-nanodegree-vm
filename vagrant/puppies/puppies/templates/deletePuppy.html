@@ -15,7 +15,7 @@ body {
     border: 2px solid grey;
     position: relative;
     text-align: left;
-    background-image: url('/static{{puppy.stats.picture}}');
+    background-image: url('/static/images/{{puppy.stats.picture}}');
     background-size: 150px 150px;
     background-repeat: no-repeat;
     margin: 5px;
@@ -40,8 +40,9 @@ Date of birth: {{puppy.dateOfBirth}}<br />
 Needs: {{puppy.stats.needs}}</p>
 <div class="clear">
 <br />
-<form action="{{url_for('deletePuppy', puppy_id=puppy.id)}}" method = 'post' id='deleteShelter'>
-<input type="hidden" value="{{puppy.id}}" name="id">
+<form action="{{url_for('deletePuppy', puppy_id=puppy.id)}}" method = 'POST' id='deletePuppy'>
+<input type="hidden" value="{{puppy.id}}" name="deleteID">
+{{ form.csrf_token }}
 <input type = 'submit' value='Remove'>
 <a href="{{url_for ('idShelters', shelter=puppy.shelter_id)}}" class="place"><input type="button" value="Return" /></a>
 </div>

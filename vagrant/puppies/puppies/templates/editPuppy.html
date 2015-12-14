@@ -1,6 +1,7 @@
 <html>
 <head>
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <style>
 body {
     position: relative;
@@ -15,12 +16,14 @@ body {
     border: 2px solid grey;
     position: relative;
     text-align: left;
-    background-image: url('/static{{puppy.stats.picture}}');
+    background-image: url('/static/images/{{puppy.stats.picture}}');
     background-size: 150px 150px;
     background-repeat: no-repeat;
     margin: 5px;
 }
-
+.errors {
+    color: white;
+}
 .links {
     font-size: 0.9em;
     position: absolute;
@@ -41,8 +44,15 @@ body {
 
 <h1>Here is the puppy that you chose to modify.</h1><br />
 
-<form action="{{url_for('editPuppy', puppy_id=puppy.id)}}" method = 'post' id='editPuppy'>
-<p>Name:</p>
+<form action="{{url_for('editPuppy', puppy_id=puppy.id)}}" method = 'POST' id='editPuppy' enctype="multipart/form-data">
+<img src='/static/images/{{puppy.stats.picture}}' alt="Picture not available" style="width:150px; height:150px; float: left; margin-right: 10px; margin-bottom: 10px;" />
+<p>Replace image?<br />
+<dt><label for='picture'>Please choose a new image smaller than 2Mb:</label></dt><br />
+<dd><input type = 'file' name='picture' id='newPuppyPicture'></dd>
+
+<input type = 'hidden' name='oldPicture' value="{{puppy.stats.picture}}">
+
+<p style="Clear: left;">Name:</p>
 <input type = 'text' size='30' name='name' value="{{puppy.name}}">
 <p>Gender:</p>
 <input type = 'text' size='30' name='gender' value="{{puppy.gender}}">
@@ -52,12 +62,35 @@ body {
 <input type = 'text' size='30' name='weight' value="{{puppy.weight}}"><br /><br />
 <p>Any particular needs that your puppy might have?</p>
 <textarea size='500' name='needs' rows='10' cols='100' form='editPuppy'>{{puppy.stats.needs}}</textarea><br />
-<!-- <p>Do you happen to have a picture of your puppy?</p>
-<input type = 'text' size='500' name='stats.needs'><br /> -->
-<br />
 
+{{ form.csrf_token }}
+{% if form.errors %}
+    <ul class="errors">
+        {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+            {% for error in field_errors %}
+                <li>{{ form[field_name].label }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+{% endif %}
+<br />
 <input type = 'submit' value='Modify'>
 <a href = "{{ url_for('idShelters', shelter=puppy.shelter_id)}}"><input type="button" value="Cancel" /></a>
 </form>
+
+
+<script>
+$("#editPuppy").submit(function(event){
+    var x = $("#newPuppyPicture")[0].files[0].size;
+    y= x/(1024*1024);
+    if (y > 2) {
+        alert( "The picture file size is greater than 2Mb. Please choose a smaller file." );
+        event.preventDefault();
+    }   
+});
+</script>
+
+
+
 </body>
 </html>
