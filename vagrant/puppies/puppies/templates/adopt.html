@@ -13,27 +13,11 @@ body {
     font-weight:bold;
     height: 150px;
     border: 2px solid grey;
-    position: relative;
     text-align: left;
     background-image: url('/static/images/{{puppy.stats.picture}}');
     background-size: 150px 150px;
     background-repeat: no-repeat;
     margin: 5px;
-}
-
-.links {
-    font-size: 0.9em;
-    position: absolute;
-    bottom: 0;
-    text-align: center;
-    margin-left: 15px;   
-}
-.place {
-    position: absolute;
-    top: 240px;
-    left: 10px;
-    padding: 0px;
-    float: left;
 }
 </style>
 </head>
@@ -42,18 +26,32 @@ body {
 
 <h1>Here is the puppy that you chose to adopt.</h1><br />
 
+<div class = 'flash' style="width: 500px;">
+              {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          
+        <ul>
+        {% for message in messages %}
+            <li> <strong> {{ message }} </strong> </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+
+</div>
+
 <div class='adopt'></div>
 <h4>Name: {{puppy.name}}</h4>
 <p>Gender: {{puppy.gender}}<br />
 Weight: {{puppy.weight}} lbs<br />
 Date of birth: {{puppy.dateOfBirth}}<br />
 Needs: {{puppy.stats.needs}}</p>
-<!-- <div class='links'>
-<a href ="#">Edit name</a><br />
-<a href ="#">View and edit menu</a><br />
-<a href ="#">Delete</a><br />
-<br />
-</div> -->
-<a href="{{url_for ('idShelters', shelter=puppy.shelter_id)}}" class="place"><input type="button" value="Return" /></a>
+<form action="{{url_for('adopt', puppy_id=puppy.id)}}" method = 'POST' id='adoptPuppy'>
+<input type="hidden" value="{{puppy.id}}" name="adoptID">
+<p>Enter user id:<input type="text" name="userID" size="5"></p>
+{{ form.csrf_token }}
+<input type = 'submit' value='Adopt'> <a href="{{url_for ('idShelters', shelter=puppy.shelter_id)}}"><input type="button" value="Cancel" /></a>
+</form>
+
 </body>
 </html>

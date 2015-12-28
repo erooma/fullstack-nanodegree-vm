@@ -89,7 +89,8 @@ body {
     {% endwith %}
 
 </div>
-<h2>Click <a href="{{ url_for('addToShelter') }}">here</a> if you wish to add a new puppy. To choose a puppy, go to our <a href='/shelters'>shelters</a> page.</h2><br />
+<h2>Click <a href="{{ url_for('addToShelter') }}">here</a> if you wish to add a new puppy. To choose a puppy, go to our <a href='/shelters'>shelters</a> page.</h2>
+<h2>Click <a href="{{ url_for('newUser') }}">here</a> if you wish to add a new user. To see a list of users, go to our <a href='/users'>users</a> page.</h2><br />
 {% for puppy in puppies %}
 <div class='pup' id='pup{{puppy.id}}'>
 <div class='name'><h4>{{puppy.name}}</h4></div>

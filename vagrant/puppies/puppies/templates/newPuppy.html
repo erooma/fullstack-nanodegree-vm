@@ -2,6 +2,11 @@
 <head>
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<style>
+.hiddenPicture {
+    display: none;
+}
+</style>
 </head>
 <body>
 
@@ -18,11 +23,15 @@
     {{ render_field(form.needs, rows=5, cols=22)}}
 
 <br />
+<div class="hiddenPicture">
+<img alt="Picture not available" style="width:150px; height:150px; float: left; margin-right: 10px; margin-bottom: 10px;" id="hiddenPicture" style="float:left ; margin-right: 10px;" />
+</div>
 <dt><label for='picture'>Puppy picture if available<br /> (an image smaller than 2Mb)</label>:</dt><br />
-<dd><input type = 'file' name='picture' id='newPuppyPicture'></dd>
+<dd><input type = 'file' name='picture' id='newPuppyPicture' ></dd>
 <br /><br /><br />
 <dt></dt> 
-<dd><input type = 'submit' value='Create' />
+<br />
+<dd style="clear: both;"><input type = 'submit' value='Create' />
 <a href = "{{ url_for('puppies')}}"><input type="button" value="Cancel" /></a></dd>
 </dl>
 </form>
@@ -30,13 +39,31 @@
 
 
 <script>
-$("#newPuppy").submit(function(event){
-    var x = $("#newPuppyPicture")[0].files[0].size;
-    y= x/(1024*1024);
-    if (y > 2) {
-        alert( "The picture file size is greater than 2Mb. Please choose a smaller file." );
-        event.preventDefault();
-    }   
+
+$(document).ready(function() {
+     $("#newPuppyPicture").change(function(){
+
+        var x = $("#newPuppyPicture")[0].files[0].size;
+        y= x/(1024*1024);
+        if (y > 2) {
+            alert( "The picture file size is greater than 2Mb. \nPlease choose a smaller file." );
+            event.preventDefault();
+            $("#newPuppyPicture").val("");
+        }       
+        else {
+            if (typeof (FileReader) != "undefined") {
+                var hidden_picture = $("#hiddenPicture");
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                   hidden_picture.attr("src" , e.target.result);
+                }
+                $(".hiddenPicture").show();
+                reader.readAsDataURL($(this)[0].files[0]);
+                } else {
+                alert("This browser does not support FileReader/upload preview.");
+                }
+            }
+  });
 });
 </script>
 

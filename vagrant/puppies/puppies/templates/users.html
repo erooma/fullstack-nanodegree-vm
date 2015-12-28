@@ -1,0 +1,125 @@
+<html>
+<head>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+<style>
+body {
+    position: relative;
+}
+.user {
+    font-family:Gotham, 'Helvetica Neue', Helvetica, Arial,
+    sans-serif;
+    margin: 4px;
+    border: 2px solid grey;
+    text-align: left;
+    color: white;
+    font-size: 0.8em;
+}
+table {
+  border-collapse: collapse;
+}
+tr { 
+  border: solid grey;
+  border-width: 1px 0;
+}
+td {
+    padding: 12px;
+}
+th {
+    padding: 12px;
+}
+tr:first-child {
+  border-top: none;
+}
+tr:last-child {
+  border-bottom: none;
+}
+.pagination {
+    color: white;
+    font-size: 1.1em;
+    clear: both;
+}
+.box {
+    height: 24px;
+    width: 30px;
+    background-color: #333333;
+    color: white;
+    border: 1px solid grey;
+    float: left;
+    text-align: center;
+    padding-top: 10px;
+}
+.box2 {
+    height: 24px;
+    width: 60px;
+    background-color: #333333;
+    color: white;
+    border: 1px solid grey;
+    float: left;
+    text-align: center;
+    padding-top: 10px;
+}.ellipsis {
+    float: left;
+}
+</style>
+</head>
+
+<body>
+
+
+<h1>Hello! Here are all the users!</h1><br />
+
+<h2>Click <a href = "{{ url_for('puppies')}}">here</a> to return to the puppies page.</h2>
+<h2>Click <a href="{{ url_for('newUser') }}">here</a> if you wish to add a new user.</h2><br />
+
+<table class="user">
+    <tr>
+        <th>User ID</th>
+        <th>Admin</th>
+        <th>Adoptions</th>
+        <th>Name</th>
+        <th>Address</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>Password</th>
+    </tr>
+
+{% for user in users %}
+<div id='user{{user.id}}'>
+
+    <tr>
+        <td>{{user.id}}</td>
+        <td>{{user.admin.level}}</td>
+        <td><a href = "{{ url_for('adoptions', user_ID=user.id, page=1) }}" style="font-size: 1em;">{{user.adopter.adoptions}}</a></td>
+        <td>{{user.name}}</td>
+        <td>{{user.address}}<br />
+            {{user.city}}<br />
+            {{user.state}}<br />
+            {{user.zipcode}}</td>
+        <td>{{user.phone}}</td>
+        <td>{{user.email}}</td>
+        <td>{{user.password}}</td>
+    </tr>
+
+</div> 
+{% endfor %}
+</table>
+<div class='pagination'>
+<div class="ellipsis" style="border:none; color: #FFFFCC; padding-top: 6px;">Page &nbsp;&nbsp;</div>
+{% for page in pagination.iter_pages() %}
+    {% if page %}
+      {% if page != pagination.page %}
+<div class="box"><a href="{{ url_for('users', page=page) }}">{{ page }}</a></div>
+      {% else %}
+    <strong class="box" style="border:none; color: #FFFFCC; padding-top: 6px;">{{ page }}</strong>
+      {% endif %}
+    {% else %}
+    <span class='ellipsis'>…</span>
+    {% endif %}
+  {% endfor %}
+  {% if pagination.has_next %}
+<div class="box2"><a href="{{ url_for('users', page=pagination.page + 1)}}">Next &nbsp;&raquo;</a></div>
+  {% endif %}
+</div>
+
+</body>
+</html>

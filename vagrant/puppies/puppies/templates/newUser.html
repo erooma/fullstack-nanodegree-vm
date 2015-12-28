@@ -1,0 +1,44 @@
+<html>
+<head>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<style>
+.hiddenPicture {
+    display: none;
+}
+</style>
+</head>
+<body>
+
+<h1>New User</h1>
+
+{% from "_form.html" import render_field %}
+<form action="{{url_for('newUser')}}" method = 'POST' id='newUser' enctype="multipart/form-data">
+<dl>
+    {{ form.csrf_token }}
+    {{ render_field(form.email) }}
+    {{ render_field(form.password) }}
+
+    <br />
+    {{ render_field(form.name) }}
+    {{ render_field(form.address) }}
+    {{ render_field(form.city) }}
+    {{ render_field(form.state, size=2) }}
+    {{ render_field(form.zipcode, size=5) }}
+    {{ render_field(form.phone) }}
+ 
+    <br />
+    {{ render_field(form.level) }}
+
+<dd style="clear: both;"><input type = 'submit' value='Create' />
+<a href = "{{ url_for('puppies')}}"><input type="button" value="Cancel" /></a></dd>
+</dl>
+</form>
+
+
+</body>
+</html>
+
+
+
+

@@ -3,10 +3,10 @@ from flask import render_template, request, redirect, url_for, flash
 from sqlalchemy import create_engine, update, delete, asc, func, desc
 from sqlalchemy.orm import sessionmaker
 from werkzeug import secure_filename
-from puppies_setup import Base, Shelter, Puppy, Stats, Adopter, PuppyAdopters
+from puppies_setup import Base, Shelter, Puppy, Stats, Adopter, PuppyAdopters, User, Admin
 #from flask.ext.sqlalchemy import SQLAlchemy
 from .models import Pagination
-from forms import NewPuppyForm, TransferForm, DeletePuppyForm, NewShelterForm, DeleteShelterForm
+from forms import NewPuppyForm, TransferForm, DeletePuppyForm, NewShelterForm, DeleteShelterForm, UserForm, AdoptersForm
 import datetime, random, bleach, re, os
 
 
@@ -16,8 +16,8 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-PER_PAGE = 12
-
+PUPPIES_PER_PAGE = 12
+USERS_PER_PAGE = 12
 
 
 @app.route('/', defaults={'page': 1})
@@ -25,12 +25,12 @@ PER_PAGE = 12
 @app.route('/puppies/page/<int:page>/')
 def puppies(page):
     count = session.query(Puppy).count()
-    a=((page-1)*PER_PAGE)
-    b=(page*PER_PAGE)
+    a=((page-1)*PUPPIES_PER_PAGE)
+    b=(page*PUPPIES_PER_PAGE)
     puppies = session.query(Puppy).all()[a:b]
     if not puppies and page !=1:
         abort(404)
-    pagination = Pagination(page, PER_PAGE, count)
+    pagination = Pagination(page, PUPPIES_PER_PAGE, count)
     for puppy in puppies:
         puppy.weight = int(puppy.weight)
     return render_template ('puppies.html', puppies=puppies, pagination=pagination)
@@ -63,6 +63,7 @@ def newPuppy(shelter_id):
         session.flush()
         if form.picture.data:
             filename = secure_filename(form.picture.data.filename)
+            filename = str(newPuppy.id) + "_" + filename
             form.picture.data.save(os.path.join(app.config['UPLOAD_FOLDER'] + filename))
         else:
             filename="none.jpg"
@@ -85,20 +86,50 @@ def shelters():
 @app.route('/shelters/<int:shelter>/<int:page>/')
 def idShelters(shelter, page):
     count = session.query(Puppy).filter_by(shelter_id=shelter).count()
-    a=((page-1)*PER_PAGE)
-    b=(page*PER_PAGE)
+    a=((page-1)*PUPPIES_PER_PAGE)
+    b=(page*PUPPIES_PER_PAGE)
     puppies = session.query(Puppy).filter_by(shelter_id=shelter).all()[a:b]
-    pagination = Pagination(page, PER_PAGE, count)
+    pagination = Pagination(page, PUPPIES_PER_PAGE, count)
     for puppy in puppies:
         puppy.weight = int(puppy.weight)
     return render_template ('idPuppies.html', puppies=puppies, pagination=pagination, shelter=shelter)
 
 
-@app.route('/adopt/<int:value>/')
-def adopt(value):
-    puppy = session.query(Puppy).filter(Puppy.id==value).one()
+@app.route('/adopt/<int:puppy_id>/', methods=['GET', 'POST'])
+def adopt(puppy_id):
+    form = AdoptersForm()
+    puppy = session.query(Puppy).filter(Puppy.id==puppy_id).one()
     puppy.weight = int(puppy.weight)
-    return render_template ('adopt.html', puppy=puppy)
+    if form.validate_on_submit():
+        user_ID = form.userID.data
+        try:
+            user = session.query(User).filter(User.id==user_ID).one()
+            newPuppyAdopter = PuppyAdopters(puppy_id=form.adoptID.data, adopter_id=user_ID)
+            session.add(newPuppyAdopter)
+            session.query(Puppy).filter(Puppy.id==form.adoptID.data).update({'shelter_id' : '0'})
+            session.commit()            
+            flash("You successfully adopted your puppy.")
+            return redirect(url_for('shelters'))
+        except:
+            flash("That user does not exist. Please try again.")
+            return render_template ('adopt.html', form=form, puppy=puppy)
+    else:
+        return render_template ('adopt.html', form=form, puppy=puppy)
+
+
+@app.route('/users/<int:user_ID>/adoptions/', defaults={'page': 1})
+@app.route('/users/<int:user_ID>/adoptions/page/<int:page>/')
+def adoptions(user_ID, page):
+    count = session.query(Adopter).filter(Adopter.id==user_ID).one().adoptions
+    a=((page-1)*PUPPIES_PER_PAGE)
+    b=(page*PUPPIES_PER_PAGE)
+    pagination = Pagination(page, PUPPIES_PER_PAGE, count)
+    puppies = session.query(Adopter).filter(Adopter.id==user_ID).one().puppies
+    for puppy in puppies:
+        puppy.weight = int(puppy.weight)
+    user = session.query(User).filter(User.id==user_ID).one()
+    return render_template ('adoptedPuppies.html', puppies=puppies, user=user, pagination=pagination)
+
 
 @app.route('/transfer/<int:puppy_id>', methods=['GET', 'POST'])
 def transfer(puppy_id):
@@ -124,8 +155,10 @@ def editPuppy(puppy_id):
         session.flush()
         if form.picture.data:
             filename = secure_filename(form.picture.data.filename)
+            filename = str(puppy_id) + "_" + filename
             form.picture.data.save(os.path.join(app.config['UPLOAD_FOLDER'] + filename))
-            os.remove(app.config['UPLOAD_FOLDER'] + form.oldPicture.data)
+            if form.oldPicture.data and form.oldPicture.data != "none.jpg":
+                os.remove(app.config['UPLOAD_FOLDER'] + form.oldPicture.data)
         else:
             filename = form.oldPicture.data           
         session.query(Stats).filter(Stats.puppy_id == puppy_id).update({'needs': form.needs.data, 'picture' : filename})
@@ -145,6 +178,8 @@ def deletePuppy(puppy_id):
         session.query(Puppy).filter_by(id=form.deleteID.data).delete()
         session.query(Stats).filter_by(puppy_id=form.deleteID.data).delete()
         session.commit()
+        if form.deletePicture.data and form.deletePicture.data != "none.jpg":
+            os.remove(app.config['UPLOAD_FOLDER'] + form.deletePicture.data)
         flash("You successfully removed your puppy from the database.")
         return redirect(url_for('idShelters', shelter=shelter_id))
     else:
@@ -193,6 +228,40 @@ def deleteShelter(shelter_id):
         return redirect(url_for('shelters'))
     else:
         return render_template('deleteShelter.html', form=form, shelter=shelterToDelete)
+
+
+@app.route('/users/new/', methods=['GET', 'POST'])
+def newUser():
+    form = UserForm()
+    if form.validate_on_submit():
+        newUser = User(name=form.name.data, address=form.address.data, city=form.city.data, state=form.state.data, zipcode=form.zipcode.data, phone=form.phone.data, email=form.email.data, password=form.password.data )
+        session.add(newUser)
+        session.flush()
+        newAdmin = Admin(level=form.level.data, id=newUser.id)
+        session.add(newAdmin)
+        session.flush()
+        newAdopter = Adopter(id=newUser.id)
+        session.add(newAdopter)
+        session.commit()
+        flash ("You have added " + newUser.email + " as a new user.")
+        return redirect(url_for('puppies'))
+    else:
+        return render_template('newUser.html', form=form)
+
+
+@app.route('/users/', defaults={'page': 1})
+@app.route('/users/page/<int:page>/')
+def Users(page):
+    count = session.query(User).count()
+    a=((page-1)*USERS_PER_PAGE)
+    b=(page*USERS_PER_PAGE)
+    users = session.query(User).all()[a:b]
+    if not users and page !=1:
+        abort(404)
+    pagination = Pagination(page, USERS_PER_PAGE, count)
+    return render_template ('users.html', users=users, pagination=pagination)
+
+
 
 # @app.route('/dogsforall/<int:puppy_id>/menu/JSON/')
 # def restaurantMenuJSON(restaurant_id):

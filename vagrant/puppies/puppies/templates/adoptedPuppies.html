@@ -81,35 +81,16 @@ body {
 
 <body>
 
-<h1>Here are all the puppies in shelter {{shelter}}!</h1><br />
-<div class = 'flash' style="width: 500px;">
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul>
-        {% for message in messages %}
-            <li> <strong> {{ message }} </strong> </li>
-        {% endfor %}
-        </ul>
-        {% endif %}
-    {% endwith %}
-</div>
+<h1>Here are all the puppies belonging to {{user.name}}!</h1><br />
 
-<h2>Choose from the dropdown menus or return to our <a href='/shelters'>shelters</a> page.</h2><br />
+
+<h2>Return to our <a href='/shelters'>shelters</a> page.</h2><br />
 {% for puppy in puppies %}
 <div class='pup' id='pup{{puppy.id}}'>
 <div class='name'><h4>{{puppy.name}}</h4></div>
 <p>{{puppy.gender}}<br />
 {{puppy.weight}} lbs<br />
 {{puppy.dateOfBirth}}</p>
-<div class='links'>
-    <select onChange="window.location.href=this.value">
-    <option value="Selection">Selection</option>
-    <option value="{{ url_for('editPuppy', puppy_id=puppy.id) }}">Modify</option>
-    <option value="{{ url_for('adopt', puppy_id=puppy.id) }}">Adopt</option>
-    <option value="{{ url_for('transfer', puppy_id=puppy.id) }}">Transfer</option>
-    <option value="{{ url_for('deletePuppy', puppy_id=puppy.id) }}">Remove</option>
-    </select>
-</div>
 </div>
 {% endfor %}
 
@@ -119,7 +100,7 @@ body {
 {% for page in pagination.iter_pages() %}
     {% if page %}
       {% if page != pagination.page %}
-<div class="box"><a href="{{ url_for('idShelters', page=page, shelter=shelter) }}">{{ page }}</a></div>
+<div class="box"><a href="{{ url_for('adoptedPuppies', user_ID=user.id, page=page) }}">{{ page }}</a></div>
       {% else %}
     <strong class="box" style="border:none; color: #FFFFCC; padding-top: 6px;">{{ page }}</strong>
       {% endif %}
@@ -128,7 +109,7 @@ body {
     {% endif %}
   {% endfor %}
   {% if pagination.has_next %}
-<div class="box2"><a href="{{ url_for('idShelters', page=pagination.page + 1, shelter=shelter)}}">Next &nbsp;&raquo;</a></div>
+<div class="box2"><a href="{{ url_for('adoptedPuppies', user_ID=user.id, page=pagination.page + 1)}}">Next &nbsp;&raquo;</a></div>
   {% endif %}
 </div>
 

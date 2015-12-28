@@ -30,7 +30,9 @@ body {
 
 <body>
 
-<h1>Here is the puppy that you wish to remove.</h1><br />
+<h1>Here is the puppy that you wish to remove.</h1>
+<P>You will also be removing this puppies picture from the database.</p>
+<br />
 
 <div class='adopt'></div>
 <h4>Name: {{puppy.name}}</h4>
@@ -42,6 +44,7 @@ Needs: {{puppy.stats.needs}}</p>
 <br />
 <form action="{{url_for('deletePuppy', puppy_id=puppy.id)}}" method = 'POST' id='deletePuppy'>
 <input type="hidden" value="{{puppy.id}}" name="deleteID">
+<input type="hidden" value="{{puppy.stats.picture}}" name="deletePicture">
 {{ form.csrf_token }}
 <input type = 'submit' value='Remove'>
 <a href="{{url_for ('idShelters', shelter=puppy.shelter_id)}}" class="place"><input type="button" value="Return" /></a>

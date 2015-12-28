@@ -17,7 +17,8 @@ class TransferForm(Form):
 
 class DeletePuppyForm(Form):
     deleteID    = IntegerField('Puppy')
-
+    deletePicture = StringField('Delete Picture')
+   
 class NewShelterForm(Form):
     name        = StringField('Name', validators=[DataRequired()])
     address     = TextAreaField('Address', [validators.Length(10, 250)])
@@ -31,15 +32,22 @@ class NewShelterForm(Form):
 class DeleteShelterForm(Form):
     deleteID    = IntegerField('Shelter')
 
-class RegistrationForm(Form):
-    username     = StringField('Username', [validators.Length(min=4, max=25)])
-    email        = StringField('Email Address', [validators.Length(min=6, max=35)])
-    accept_rules = BooleanField('I accept the site rules', [validators.InputRequired()])
+class UserForm(Form):
+    name        = StringField('Name', validators=[DataRequired()])
+    address     = TextAreaField('Address', [validators.Length(10, 250)])
+    city        = StringField('City', [validators.Length(2, 250)])
+    state       = StringField('State', [validators.Length(2, 2, message="The state must be 2 letters.")])
+    zipcode     = StringField('Zipcode', [validators.Length(5, 5, message="The zipcode must be 5 digits.")])    
+    phone       = StringField('Phone', [validators.Length(10, 10, message="Please enter 10 digits without spaces or other characters.")])
+    email       = StringField('Email Address', [validators.Length(min=6, max=35)])
+    password    = StringField('Password', [validators.Length(5, 100, message="Your password must be at least 5 characters long.")])
+    #accept_rules = BooleanField('I accept the site rules', [validators.InputRequired()])
+    level       = IntegerField('User Level', [validators.NumberRange(min=0, max=2)])
+    # level 0   = routine adopter, no privileges
+    # level 1   = shelter administrator, can manage shelters but not users
+    # level 2   = user administrator, can manage users and shelters
 
-class ProfileForm(Form):
-    birthday  = DateTimeField('Your Birthday', format='%m/%d/%y')
-    signature = TextAreaField('Forum Signature')
+class AdoptersForm(Form):
+    adoptID    = IntegerField('Puppy')
+    userID     = IntegerField('User')
 
-class AdminProfileForm(ProfileForm):
-    username = StringField('Username', [validators.Length(max=40)])
-    level    = IntegerField('User Level', [validators.NumberRange(min=0, max=10)])
