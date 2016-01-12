@@ -1,0 +1,447 @@
+from puppies import app
+
+from flask import render_template, request, jsonify, redirect, url_for, flash, make_response
+from flask import session as login_session
+from sqlalchemy import create_engine, update, delete, asc, func, desc
+from sqlalchemy.orm import sessionmaker
+from werkzeug import secure_filename
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import FlowExchangeError
+
+from puppies_setup import Base, Shelter, Puppy, Stats, Adopter, PuppyAdopters, User, Admin
+from .models import Pagination
+from forms import NewPuppyForm, TransferForm, DeletePuppyForm, NewShelterForm, DeleteShelterForm, UserForm, AdoptersForm
+
+import datetime, random, string, re, os
+import httplib2, json, requests
+
+CLIENT_ID = json.loads(
+    open('client_secrets.json', 'r').read())['web']['client_id']
+APPLICATION_NAME = "AdoptUsDogs"
+
+# Connect to Database and create database session
+engine = create_engine('sqlite:///puppyshelter.db')
+Base.metadata.bind = engine
+DBSession = sessionmaker(bind=engine)
+session = DBSession()
+
+PUPPIES_PER_PAGE = 12
+USERS_PER_PAGE = 12
+
+# Create anti-forgery state token
+@app.route('/login')
+def showLogin():
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
+                    for x in xrange(32))
+    login_session['state'] = state
+    return render_template('login.html', STATE=state)
+
+
+@app.route('/gconnect', methods=['POST'])
+def gconnect():
+    # Validate state token
+    if request.args.get('state') != login_session['state']:
+        response = make_response(json.dumps('Invalid state parameter.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    # Obtain authorization code
+    code = request.data
+
+    try:
+        # Upgrade the authorization code into a credentials object
+        oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
+        oauth_flow.redirect_uri = 'postmessage'
+        credentials = oauth_flow.step2_exchange(code)
+    except FlowExchangeError:
+        response = make_response(
+            json.dumps('Failed to upgrade the authorization code.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # Check that the access token is valid.
+    access_token = credentials.access_token
+    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
+           % access_token)
+    h = httplib2.Http()
+    result = json.loads(h.request(url, 'GET')[1])
+    # If there was an error in the access token info, abort.
+    if result.get('error') is not None:
+        response = make_response(json.dumps(result.get('error')), 500)
+        response.headers['Content-Type'] = 'application/json'
+
+    # Verify that the access token is used for the intended user.
+    gplus_id = credentials.id_token['sub']
+    if result['user_id'] != gplus_id:
+        response = make_response(
+            json.dumps("Token's user ID doesn't match given user ID."), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # Verify that the access token is valid for this app.
+    if result['issued_to'] != CLIENT_ID:
+        response = make_response(
+            json.dumps("Token's client ID does not match app's."), 401)
+        print "Token's client ID does not match app's."
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    stored_credentials = login_session.get('credentials')
+    stored_gplus_id = login_session.get('gplus_id')
+    if stored_credentials is not None and gplus_id == stored_gplus_id:
+        response = make_response(json.dumps('Current user is already connected.'),
+                                 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # Store the access token in the session for later use.
+    login_session['credentials'] = credentials
+    login_session['gplus_id'] = gplus_id
+
+    # Get user info
+    userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
+    params = {'access_token': credentials.access_token, 'alt': 'json'}
+    answer = requests.get(userinfo_url, params=params)
+
+    data = answer.json()
+
+    login_session['username'] = data['name']
+    login_session['picture'] = data['picture']
+    login_session['email'] = data['email']
+
+    output = ''
+    output += '<h2>Welcome<br /> '
+    output += login_session['username']
+    output += '!</h2>'
+    flash("You are now logged in as %s." % login_session['username'])
+    return output
+
+
+# DISCONNECT - Revoke a current user's token and reset their login_session
+@app.route('/gdisconnect')
+def gdisconnect():
+    # Only disconnect a connected user.
+    credentials = login_session.get('credentials')
+    if credentials is None:
+        response = make_response(json.dumps('Current user not connected.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    # Execute HTTP GET request to revoke current token.
+    access_token = credentials.access_token
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
+    h = httplib2.Http()
+    result = h.request(url, 'GET')[0]
+    if result['status'] == '200':
+        del login_session['credentials'] 
+        del login_session['gplus_id']
+        del login_session['username']
+        del login_session['email']
+        del login_session['picture']
+        response = make_response(json.dumps('Successfully disconnected.'), 200)
+        response.headers['Content-Type'] = 'application/json'
+        flash("You have been successfully logged out.")
+        return redirect(url_for('puppies'))
+    else:
+        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+
+@app.route('/', defaults={'page': 1})
+@app.route('/puppies/', defaults={'page': 1})
+@app.route('/puppies/page/<int:page>/')
+def puppies(page):
+    count = session.query(Puppy).count()
+    a=((page-1)*PUPPIES_PER_PAGE)
+    b=(page*PUPPIES_PER_PAGE)
+    puppies = session.query(Puppy).all()[a:b]
+    if not puppies and page !=1:
+        abort(404)
+    pagination = Pagination(page, PUPPIES_PER_PAGE, count)
+    for puppy in puppies:
+        puppy.weight = int(puppy.weight)
+    return render_template ('puppies.html', puppies=puppies, pagination=pagination, login_session=login_session)
+
+
+@app.route('/puppies/shelter')
+def addToShelter():
+    if 'username' not in login_session:
+        flash ("Please login for more complete access to our puppies.")
+        return redirect ('/puppies')
+    shelter_id=request.args.get('shelter_id', '')
+    shelters = session.query(Shelter).all()
+    if shelter_id:
+        shelter = session.query(Shelter).filter(Shelter.id==shelter_id).one()
+        if shelter.occupancy >= shelter.capacity:
+            least = session.query(Shelter).order_by(Shelter.occupancy.asc()).first()
+            flash ("That shelter is full, please choose another.")
+            flash("Shelter "+ str(least.id) + " has the most room.")
+            shelter_ID=None
+            return render_template('addToShelter.html', shelters=shelters, shelter_id=shelter_id)
+        else:
+            form = NewPuppyForm()
+            return render_template('newPuppy.html', form=form, shelter_id=shelter_id)
+    return render_template ('addToShelter.html', shelters=shelters, shelter_id=shelter_id)
+
+
+@app.route('/puppies/new/<int:shelter_id>/', methods=['GET', 'POST'])
+def newPuppy(shelter_id):
+    if 'username' not in login_session:
+        flash ("Please login for more complete access to our puppies.")
+        return redirect ('/puppies')
+    form = NewPuppyForm()
+    if form.validate_on_submit():
+        newPuppy = Puppy(name=form.name.data, gender=form.gender.data, dateOfBirth=form.dateOfBirth.data, weight=form.weight.data, shelter_id=shelter_id)
+        session.add(newPuppy)
+        session.flush()
+        if form.picture.data:
+            filename = secure_filename(form.picture.data.filename)
+            filename = str(newPuppy.id) + "_" + filename
+            form.picture.data.save(os.path.join(app.config['UPLOAD_FOLDER'] + filename))
+        else:
+            filename="none.jpg"
+        newStats = Stats(needs=form.needs.data, picture=filename, puppy_id=newPuppy.id)
+        session.add(newStats)
+        session.commit()
+        flash ("Your puppy has been successfully added.")
+        return redirect(url_for('puppies'))
+    else:
+        return render_template('newPuppy.html', form=form, shelter_id=shelter_id)
+
+
+@app.route('/shelters/')
+def shelters():
+    if 'username' not in login_session:
+        flash ("Please login for more complete access to our puppies.")
+        return redirect ('/puppies')
+    shelters = session.query(Shelter).all()
+    return render_template ('shelters.html', shelters=shelters)
+
+
+@app.route('/shelters/<int:shelter>/', defaults={'page': 1})
+@app.route('/shelters/<int:shelter>/<int:page>/')
+def idShelters(shelter, page):
+    if 'username' not in login_session:
+        flash ("Please login for more complete access to our puppies.")
+        return redirect ('/puppies')
+    count = session.query(Puppy).filter_by(shelter_id=shelter).count()
+    a=((page-1)*PUPPIES_PER_PAGE)
+    b=(page*PUPPIES_PER_PAGE)
+    puppies = session.query(Puppy).filter_by(shelter_id=shelter).all()[a:b]
+    pagination = Pagination(page, PUPPIES_PER_PAGE, count)
+    for puppy in puppies:
+        puppy.weight = int(puppy.weight)
+    return render_template ('idPuppies.html', puppies=puppies, pagination=pagination, shelter=shelter)
+
+
+@app.route('/adopt/<int:puppy_id>/', methods=['GET', 'POST'])
+def adopt(puppy_id):
+    if 'username' not in login_session:
+        flash ("Please login for more complete access to our puppies.")
+        return redirect ('/puppies')
+    form = AdoptersForm()
+    puppy = session.query(Puppy).filter(Puppy.id==puppy_id).one()
+    puppy.weight = int(puppy.weight)
+    if form.validate_on_submit():
+        user_ID = form.userID.data
+        try:
+            user = session.query(User).filter(User.id==user_ID).one()
+            newPuppyAdopter = PuppyAdopters(puppy_id=form.adoptID.data, adopter_id=user_ID)
+            session.add(newPuppyAdopter)
+            session.query(Puppy).filter(Puppy.id==form.adoptID.data).update({'shelter_id' : '0'})
+            session.commit()            
+            flash("You successfully adopted your puppy.")
+            return redirect(url_for('shelters'))
+        except:
+            flash("That user does not exist. Please try again.")
+            return render_template ('adopt.html', form=form, puppy=puppy)
+    else:
+        return render_template ('adopt.html', form=form, puppy=puppy)
+
+
+@app.route('/users/<int:user_ID>/adoptions/', defaults={'page': 1})
+@app.route('/users/<int:user_ID>/adoptions/page/<int:page>/')
+def adoptions(user_ID, page):
+    if 'username' not in login_session:
+        flash ("Please login for more complete access to our puppies.")
+        return redirect ('/puppies')
+    count = session.query(Adopter).filter(Adopter.id==user_ID).one().adoptions
+    a=((page-1)*PUPPIES_PER_PAGE)
+    b=(page*PUPPIES_PER_PAGE)
+    pagination = Pagination(page, PUPPIES_PER_PAGE, count)
+    puppies = session.query(Adopter).filter(Adopter.id==user_ID).one().puppies
+    for puppy in puppies:
+        puppy.weight = int(puppy.weight)
+    user = session.query(User).filter(User.id==user_ID).one()
+    return render_template ('adoptedPuppies.html', puppies=puppies, user=user, pagination=pagination)
+
+
+@app.route('/transfer/<int:puppy_id>', methods=['GET', 'POST'])
+def transfer(puppy_id):
+    if 'username' not in login_session:
+        flash ("Please login for more complete access to our puppies.")
+        return redirect ('/puppies')
+    form = TransferForm()
+    puppy = session.query(Puppy).filter(Puppy.id==puppy_id).one()
+    shelters = session.query(Shelter).filter(Shelter.occupancy<Shelter.capacity, Shelter.id != puppy.shelter_id).all()
+    if form.validate_on_submit():
+        session.query(Puppy).filter(Puppy.id==puppy_id).update({'shelter_id' : form.newShelter.data})
+        session.commit()
+        flash("You successfully transferred your puppy.")
+        return redirect(url_for('shelters'))
+    else:
+        return render_template ('transfer.html', form=form, puppy=puppy, shelters=shelters)
+
+
+@app.route('/editPuppy/<int:puppy_id>/', methods=['GET', 'POST'])
+def editPuppy(puppy_id):
+    if 'username' not in login_session:
+        flash ("Please login for more complete access to our puppies.")
+        return redirect ('/puppies')
+    editedPuppy=session.query(Puppy).filter_by(id=puppy_id).one()
+    editedPuppy.weight = int(editedPuppy.weight)
+    form = NewPuppyForm()
+    if form.validate_on_submit():
+        session.query(Puppy).filter(Puppy.id == puppy_id).update({'name' : form.name.data, 'gender' : form.gender.data, 'dateOfBirth' : form.dateOfBirth.data, 'weight' : form.weight.data})
+        session.flush()
+        if form.picture.data:
+            filename = secure_filename(form.picture.data.filename)
+            filename = str(puppy_id) + "_" + filename
+            form.picture.data.save(os.path.join(app.config['UPLOAD_FOLDER'] + filename))
+            if form.oldPicture.data and form.oldPicture.data != "none.jpg":
+                os.remove(app.config['UPLOAD_FOLDER'] + form.oldPicture.data)
+        else:
+            filename = form.oldPicture.data           
+        session.query(Stats).filter(Stats.puppy_id == puppy_id).update({'needs': form.needs.data, 'picture' : filename})
+        session.commit()
+        flash("You successfully edited your puppy information.")
+        return redirect(url_for('idShelters', shelter=editedPuppy.shelter_id))
+    else:
+        return render_template('editPuppy.html', form=form, puppy=editedPuppy)
+
+@app.route('/deletePuppy/<int:puppy_id>/', methods=['GET', 'POST'])
+def deletePuppy(puppy_id):
+    if 'username' not in login_session:
+        flash ("Please login for more complete access to our puppies.")
+        return redirect ('/puppies')
+    form=DeletePuppyForm()
+    deletedPuppy=session.query(Puppy).filter_by(id=puppy_id).one()
+    deletedPuppy.weight = int(deletedPuppy.weight)
+    if form.validate_on_submit():
+        shelter_id = session.query(Puppy).filter_by(id=form.deleteID.data).one().shelter_id
+        session.query(Puppy).filter_by(id=form.deleteID.data).delete()
+        session.query(Stats).filter_by(puppy_id=form.deleteID.data).delete()
+        session.commit()
+        if form.deletePicture.data and form.deletePicture.data != "none.jpg":
+            os.remove(app.config['UPLOAD_FOLDER'] + form.deletePicture.data)
+        flash("You successfully removed your puppy from the database.")
+        return redirect(url_for('idShelters', shelter=shelter_id))
+    else:
+        return render_template('deletePuppy.html', form=form, puppy=deletedPuppy)
+
+@app.route('/shelters/new/', methods=['GET', 'POST'])
+def addShelter():
+    if 'username' not in login_session:
+        flash ("Please login for more complete access to our puppies.")
+        return redirect ('/puppies')
+    form=NewShelterForm()
+    if form.validate_on_submit():
+        newShelter = Shelter(name=form.name.data, address=form.address.data, city=form.city.data, state=form.state.data, zipCode=form.zipcode.data, website=form.website.data, occupancy=form.occupancy.data, capacity=form.capacity.data)
+        session.add(newShelter)
+        session.commit()
+        flash("You successfully added a shelter.")
+        return redirect(url_for('shelters'))
+    else:
+        return render_template('addShelter.html', form=form)
+
+
+@app.route('/shelters/edit/<int:shelter_id>', methods=['GET', 'POST'])
+def editShelter(shelter_id):
+    if 'username' not in login_session:
+        flash ("Please login for more complete access to our puppies.")
+        return redirect ('/puppies')
+    form=NewShelterForm()
+    editedShelter = session.query(Shelter).filter_by(id=shelter_id).one()
+    if form.validate_on_submit():
+        session.query(Shelter).filter(Shelter.id==shelter_id).update({'name' : form.name.data, 'address' : form.address.data, 'city' : form.city.data, 'state' : form.state.data, 'zipCode' : form.zipcode.data, 'website' : form.website.data, 'capacity' :form.capacity.data})
+        session.commit()
+        flash("Shelter edited successfully!")
+        return redirect(url_for('shelters'))
+    else:
+        return render_template('editShelter.html', form=form, shelter=editedShelter)
+
+
+@app.route('/shelters/delete/<int:shelter_id>', methods=['GET', 'POST'])
+def deleteShelter(shelter_id):
+    if 'username' not in login_session:
+        flash ("Please login for more complete access to our puppies.")
+        return redirect ('/puppies')
+    form=DeleteShelterForm()
+    shelterToDelete = session.query(Shelter).filter_by(id=shelter_id).one()
+    if form.validate_on_submit(): 
+        shelterToDelete.id = form.deleteID.data
+        shelterToDelete = session.query(Shelter).filter_by(id=shelterToDelete.id).one()
+        if shelterToDelete.occupancy != 0:
+            flash("That shelter requires a transfer of its occupants.")  
+            return redirect(url_for('shelters'))        
+        else:
+            session.delete(shelterToDelete)
+            session.commit()
+            flash("That shelter has been deleted.")
+        return redirect(url_for('shelters'))
+    else:
+        return render_template('deleteShelter.html', form=form, shelter=shelterToDelete)
+
+
+@app.route('/users/new/', methods=['GET', 'POST'])
+def newUser():
+    if 'username' not in login_session:
+        flash ("Please login for more complete access to our puppies.")
+        return redirect ('/puppies')
+    form = UserForm()
+    if form.validate_on_submit():
+        newUser = User(name=form.name.data, address=form.address.data, city=form.city.data, state=form.state.data, zipcode=form.zipcode.data, phone=form.phone.data, email=form.email.data, password=form.password.data )
+        session.add(newUser)
+        session.flush()
+        newAdmin = Admin(level=form.level.data, id=newUser.id)
+        session.add(newAdmin)
+        session.flush()
+        newAdopter = Adopter(id=newUser.id)
+        session.add(newAdopter)
+        session.commit()
+        flash ("You have added " + newUser.email + " as a new user.")
+        return redirect(url_for('puppies'))
+    else:
+        return render_template('newUser.html', form=form)
+
+
+@app.route('/users/', defaults={'page': 1})
+@app.route('/users/page/<int:page>/')
+def Users(page):
+    if 'username' not in login_session:
+        flash ("Please login for more complete access to our puppies.")
+        return redirect ('/puppies')
+    count = session.query(User).count()
+    a=((page-1)*USERS_PER_PAGE)
+    b=(page*USERS_PER_PAGE)
+    users = session.query(User).all()[a:b]
+    if not users and page !=1:
+        abort(404)
+    pagination = Pagination(page, USERS_PER_PAGE, count)
+    return render_template ('users.html', users=users, pagination=pagination)
+
+
+
+# @app.route('/dogsforall/<int:puppy_id>/menu/JSON/')
+# def restaurantMenuJSON(restaurant_id):
+#     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+#     items = session.query(MenuItem).filter_by(
+#         restaurant_id=restaurant_id).all()
+#     return jsonify(MenuItems=[i.serialize for i in items])
+
+
+# @app.route('/restaurants/<int:restaurant_id>/menu/<int:menu_id>/JSON/')
+# def menuItemJSON(restaurant_id, menu_id):
+#     item = session.query(MenuItem).filter_by(
+#         id=menu_id).one()
+#     return jsonify(MenuItem=item.serialize)        
+

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.2.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <title>Adopt a puppy</title>
+<style>
+.adopt {
+    float: left;
+    width: 150px;
+    font-family:Gotham, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight:bold;
+    height: 150px;
+    border: 2px solid grey;
+    text-align: left;
+    background-image: url('/static/images/{{puppy.stats.picture}}');
+    background-size: 150px 150px;
+    background-repeat: no-repeat;
+    margin: 5px;
+}
+#adoptPuppy {
+    clear: both;
+    margin-left: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Here is the puppy that you chose to adopt.</h1><br />
+
+<div class = 'flash' style="width: 500px;">
+              {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          
+        <ul>
+        {% for message in messages %}
+            <li> <strong> {{ message }} </strong> </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+
+</div>
+
+<div class='adopt'></div>
+<br/>
+<p>Name: {{puppy.name}}</p>
+<p>Gender: {{puppy.gender}}<br />
+Weight: {{puppy.weight}} lbs<br />
+Date of birth: {{puppy.dateOfBirth}}<br />
+Needs: {{puppy.stats.needs}}</p>
+<form action="{{url_for('adopt', puppy_id=puppy.id)}}" method = 'POST' id='adoptPuppy'>
+<input type="hidden" value="{{puppy.id}}" name="adoptID">
+<p>Enter user id:<input type="text" name="userID" size="5"></p>
+{{ form.csrf_token }}
+<input type = 'submit' value='Adopt'> <a href="{{url_for ('idShelters', shelter=puppy.shelter_id)}}" style="color: black;"><input type="button" value="Cancel" /></a>
+</form>
+
+</body>
+</html>

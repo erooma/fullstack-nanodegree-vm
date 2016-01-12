@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.2.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <title>Add a shelter</title>
+</head>
+
+<body>
+
+
+<h1>Please add a shelter using the following form.</h1><br />
+<div class='newShelter'>
+{% from "_form.html" import render_field %}
+
+<form action="{{url_for('addShelter')}}" method = 'POST' id='newShelter'>
+<dl>
+    {{ form.csrf_token }}
+    {{ render_field(form.name, size=50) }}
+    {{ render_field(form.address, rows=5, cols=52) }}
+    {{ render_field(form.city, size=50) }}
+    {{ render_field(form.state, size=2)}}
+    {{ render_field(form.zipcode, size=5) }}
+    {{ render_field(form.website, size=50) }}
+    {{ render_field(form.occupancy, size=3, value='0') }}
+    {{ render_field(form.capacity, size=3) }}
+
+<br />
+<br />
+<input type = 'submit' value='Create'>
+<a href = "{{ url_for('shelters')}}" style="color: black;"><input type="button" value="Cancel" /></a>
+</dl>
+</form>
+
+</div> 
+
+</body>
+</html>

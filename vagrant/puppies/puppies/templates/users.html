@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.2.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <title>User list</title>
+<style>
+table {
+  border-collapse: collapse;
+}
+tr { 
+  border: solid grey;
+  border-width: 1px 0;
+}
+td {
+    padding: 8px;
+}
+th {
+    padding: 8px;
+}
+tr:first-child {
+  border-top: none;
+}
+tr:last-child {
+  border-bottom: none;
+}
+</style>
+</head>
+
+<body>
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#topFixedNavbar1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+        <a class="navbar-brand" href="/puppies">AdoptUsDogs</a>
+        </div>
+        <div class="collapse navbar-collapse" id="topFixedNavbar1">
+            <ul class="nav navbar-nav navbar-left">
+
+              <li role="presentation" class="dropdown">
+               <a class="dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false">
+       Puppies</a>
+                <ul class="dropdown-menu">
+                  <li><a href="/puppies">See all of our puppies</a></li>
+                  <li><a href="/shelters">Adopt a puppy</a></li>
+                  <li><a href="{{ url_for('addToShelter') }}">Add a puppy</a></li>
+                  <li><a href="/shelters">Edit puppy stats</a></li>
+                  <li><a href="/shelters">Remove a puppy</a></li>
+                  <li><a href="/shelters">Transfer a puppy</a></li>
+                </ul>
+              </li>
+
+              <li role="presentation" class="dropdown">
+               <a class="dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false">
+       Shelters </a>
+                <ul class="dropdown-menu">
+                  <li><a href="/shelters">View the available shelters</a></li>
+                  <li><a href="/shelters">Edit a shelter</a></li>
+                  <li><a href="/shelters">Remove a shelter</a></li>
+                  <li><a href="/shelters/new">Add a shelter</a></li>
+                </ul>
+              </li>
+            </ul>
+    
+            <ul class="nav navbar-nav navbar-right">
+
+              <li role="presentation" class="dropdown">
+               <a class="dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false">
+       Users</a>
+                <ul class="dropdown-menu">
+                  <li><a href="{{ url_for('newUser') }}">Add a user</a></li>
+                  <li><a href='/users'>User list</a></li>
+                </ul>
+              </li>
+
+              <li class = "dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span style="margin-right:20px;" aria-hidden="true">Login</span></a>          
+                <div class="dropdown-menu login">
+                <form action="" method="post" accept-charset="UTF-8" autocomplete="off">
+                      <div class="form-group-sm">
+                        <label class="sr-only" for="userEmail">Email</label>
+                    <input class="form-control" id="userEmail" type="text" name="userMail" placeholder="email" style="margin-bottom: 5px;"/>
+                       </div>
+                       <div class="form-group-sm">
+                        <input type="text" style="display: none">
+                    <input type='password' style='display: none'>
+                        <label class="sr-only" for="userPassword">Password</label>
+                    <input class="form-control" id="userPassword" type="password" name="userPassword" placeholder="password"/>
+                       </div>
+                       <div class="form-group-sm">
+                    <input id="userRemember" type="checkbox" name="userRemember" value="1"/>
+                        <label for="userRemember"> Remember me</label>
+                <input class="btn-sm btn-default" type="submit" value="Log In" style="margin-top:10px; margin-left: 50px;">
+                       </div>
+                    </form>
+              </div>
+          </li>
+       </ul>
+     </div>
+      <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
+  </nav>
+<div class="wrapper">
+
+<h1>Here are all the users.</h1><br />
+
+<table class="user">
+    <tr>
+        <th>User ID</th>
+        <th>Admin</th>
+        <th>Adoptions</th>
+        <th>Name</th>
+        <th>Address</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>Password</th>
+    </tr>
+
+{% for user in users %}
+<div id='user{{user.id}}'>
+
+    <tr>
+        <td>{{user.id}}</td>
+        <td>{{user.admin.level}}</td>
+        <td><a href = "{{ url_for('adoptions', user_ID=user.id, page=1) }}" style="font-size: 1em;">{{user.adopter.adoptions}}</a></td>
+        <td>{{user.name}}</td>
+        <td>{{user.address}}<br />
+            {{user.city}}<br />
+            {{user.state}}<br />
+            {{user.zipcode}}</td>
+        <td>{{user.phone}}</td>
+        <td>{{user.email}}</td>
+        <td>{{user.password}}</td>
+    </tr>
+
+</div> 
+{% endfor %}
+</table>
+<div class='pages'>
+<div class="ellipsis" style="border:none; color: #FFFFFF;">Page &nbsp;&nbsp;</div>
+{% for page in pagination.iter_pages() %}
+    {% if page %}
+      {% if page != pagination.page %}
+<div class="box"><a href="{{ url_for('users', page=page) }}">{{ page }}</a></div>
+      {% else %}
+    <strong class="box" style="border:none; color: #FFFFFF;">{{ page }}</strong>
+      {% endif %}
+    {% else %}
+    <span class='ellipsis'>…</span>
+    {% endif %}
+  {% endfor %}
+  {% if pagination.has_next %}
+<div class="box2"><a href="{{ url_for('users', page=pagination.page + 1)}}">Next &nbsp;&raquo;</a></div>
+  {% endif %}
+</div>
+</div>
+</body>
+</html>

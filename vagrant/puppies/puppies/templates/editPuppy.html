@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.2.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <title>Modify puppy</title>
+<style>
+.adopt {
+    float: left;
+    width: 150px;
+    font-family:Gotham, 'Helvetica Neue', Helvetica, Arial,
+    sans-serif;
+    font-weight:bold;
+    height: 150px;
+    border: 2px solid grey;
+    position: relative;
+    text-align: left;
+    background-image: url('/static/images/{{puppy.stats.picture}}');
+    background-size: 150px 150px;
+    background-repeat: no-repeat;
+    margin: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Here is the puppy that you chose to modify.</h1><br />
+
+<form action="{{url_for('editPuppy', puppy_id=puppy.id)}}" method = 'POST' id='editPuppy' enctype="multipart/form-data">
+<img src='/static/images/{{puppy.stats.picture}}' alt="Picture not available" style="width:150px; height:150px; float: left; margin-right: 10px; margin-bottom: 10px;" />
+<div class="hiddenPicture">
+<h3 style="float: left"> -- becomes -- > &nbsp;</h3>
+<img alt="Picture not available" style="width:150px; height:150px; float: left; margin-right: 10px; margin-bottom: 10px;" id="hiddenPicture" />
+</div>
+<dt><label for='picture'>Replace image?<br />
+(the old image will be removed)<br />Please choose an image file less than 2Mb:</label></dt><br />
+<dd><input type = 'file' name='picture' id='newPuppyPicture' accept="image/*"></dd>
+
+<input type = 'hidden' name='oldPicture' value="{{puppy.stats.picture}}">
+
+<p style="Clear: left;">Name:</p>
+<input type = 'text' size='30' name='name' value="{{puppy.name}}">
+<p>Gender:</p>
+<input type = 'text' size='30' name='gender' value="{{puppy.gender}}">
+<p>Date of birth (YYYY-MM-DD):</p>
+<input type = 'text' size='30' name='dateOfBirth' value="{{puppy.dateOfBirth}}">
+<p>Weight (lbs):</p>
+<input type = 'text' size='30' name='weight' value="{{puppy.weight}}"><br /><br />
+<p>Any particular needs that your puppy might have?</p>
+<textarea size='500' name='needs' rows='10' cols='100' form='editPuppy'>{{puppy.stats.needs}}</textarea><br />
+
+{{ form.csrf_token }}
+{% if form.errors %}
+    <ul class="errors">
+        {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+            {% for error in field_errors %}
+                <li>{{ form[field_name].label }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+{% endif %}
+<br />
+<input type = 'submit' value='Modify'>
+<a href = "{{ url_for('idShelters', shelter=puppy.shelter_id)}}"><input type="button" value="Cancel" style="color: black;" /></a>
+</form>
+
+
+<script>
+$(document).ready(function() {
+     $("#newPuppyPicture").change(function(){
+
+        var x = $("#newPuppyPicture")[0].files[0].size;
+        y= x/(1024*1024);
+        if (y > 2) {
+            alert( "The picture file size is greater than 2Mb. \nPlease choose a smaller file." );
+            event.preventDefault();
+            $("#newPuppyPicture").val("");
+        }       
+        else {
+            if (typeof (FileReader) != "undefined") {
+                var hidden_picture = $("#hiddenPicture");
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                   hidden_picture.attr("src" , e.target.result);
+                }
+                $(".hiddenPicture").show();
+                reader.readAsDataURL($(this)[0].files[0]);
+                } else {
+                alert("This browser does not support FileReader/upload preview.");
+                }
+            }
+  });
+});
+</script>
+
+
+
+</body>
+</html>

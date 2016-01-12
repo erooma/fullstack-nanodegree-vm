@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.2.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <title>New Puppy</title>
+</head>
+<body>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#topFixedNavbar1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+        <a class="navbar-brand" href="/puppies">AdoptUsDogs</a>
+        </div>
+        <div class="collapse navbar-collapse" id="topFixedNavbar1">
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="{{url_for('gdisconnect')}}">Logout</a></li>
+            </ul>
+     </div>
+      <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
+  </nav>
+<div class="wrapper">
+<h1>New Puppy</h1>
+
+{% from "_form.html" import render_field %}
+<form action="{{url_for('newPuppy', shelter_id=shelter_id)}}" method = 'POST' id='newPuppy' enctype="multipart/form-data">
+<dl>
+    {{ form.csrf_token }}
+    {{ render_field(form.name) }}
+    {{ render_field(form.gender) }}
+    {{ render_field(form.dateOfBirth) }}
+    {{ render_field(form.weight) }}
+    {{ render_field(form.needs, rows=5, cols=22)}}
+
+<br />
+<div class="hiddenPicture">
+<img alt="Picture not available" style="width:150px; height:150px; float: left; margin-right: 10px; margin-bottom: 10px;" id="hiddenPicture" style="float:left ; margin-right: 10px;" />
+</div>
+<dt><label for='picture'>Puppy picture if available<br /> (an image smaller than 2Mb)</label>:</dt><br />
+<dd><input type = 'file' name='picture' id='newPuppyPicture' ></dd>
+<br /><br /><br />
+<dt></dt> 
+<br />
+<dd style="clear: both;"><input type = 'submit' value='Create' style="color:black;" />
+<a href = "{{ url_for('puppies')}}" style="color:black;"><input type="button" value="Cancel" /></a></dd>
+</dl>
+</form>
+
+
+
+<script>
+
+$(document).ready(function() {
+     $("#newPuppyPicture").change(function(){
+
+        var x = $("#newPuppyPicture")[0].files[0].size;
+        y= x/(1024*1024);
+        if (y > 2) {
+            alert( "The picture file size is greater than 2Mb. \nPlease choose a smaller file." );
+            event.preventDefault();
+            $("#newPuppyPicture").val("");
+        }       
+        else {
+            if (typeof (FileReader) != "undefined") {
+                var hidden_picture = $("#hiddenPicture");
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                   hidden_picture.attr("src" , e.target.result);
+                }
+                $(".hiddenPicture").show();
+                reader.readAsDataURL($(this)[0].files[0]);
+                } else {
+                alert("This browser does not support FileReader/upload preview.");
+                }
+            }
+  });
+});
+</script>
+</div>
+
+</body>
+</html>
+
+
+
+

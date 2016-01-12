@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.2.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <title>Remove puppy</title>
+<style>
+.adopt {
+    float: left;
+    width: 150px;
+    font-family:Gotham, 'Helvetica Neue', Helvetica, Arial,
+    sans-serif;
+    font-weight:bold;
+    height: 150px;
+    border: 2px solid grey;
+    position: relative;
+    text-align: left;
+    background-image: url('/static/images/{{puppy.stats.picture}}');
+    background-size: 150px 150px;
+    background-repeat: no-repeat;
+    margin: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Here is the puppy that you wish to remove.</h1>
+<P>You will also be removing this puppies' picture from the database.</p>
+<br />
+
+<div class='adopt'></div>
+<p>Name: {{puppy.name}}</p>
+<p>Gender: {{puppy.gender}}<br />
+Weight: {{puppy.weight}} lbs<br />
+Date of birth: {{puppy.dateOfBirth}}<br />
+Needs: {{puppy.stats.needs}}</p>
+<div class="clear">
+<br />
+<form action="{{url_for('deletePuppy', puppy_id=puppy.id)}}" method = 'POST' id='deletePuppy' class="clear">
+<input type="hidden" value="{{puppy.id}}" name="deleteID">
+<input type="hidden" value="{{puppy.stats.picture}}" name="deletePicture">
+{{ form.csrf_token }}
+<input type = 'submit' value='Remove'>
+<a href="{{url_for ('idShelters', shelter=puppy.shelter_id)}}" style="color: black;"><input type="button" value="Return" /></a>
+</div>
+</body>
+</html>

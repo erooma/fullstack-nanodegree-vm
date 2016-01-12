@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.2.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <title>Shelter list</title>
+</head>
+
+<body>
+   <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#topFixedNavbar1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+        <a class="navbar-brand" href="/puppies">AdoptUsDogs</a>
+        </div>
+        <div class="collapse navbar-collapse" id="topFixedNavbar1">
+            <ul class="nav navbar-nav navbar-left">
+
+              <li role="presentation" class="dropdown">
+               <a class="dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false">
+       Puppies</a>
+                <ul class="dropdown-menu">
+                  <li><a href="/puppies">See all of our puppies</a></li>
+                  <li><a href="/shelters">Adopt a puppy</a></li>
+                  <li><a href="{{ url_for('addToShelter') }}">Add a puppy</a></li>
+                  <li><a href="/shelters">Edit puppy stats</a></li>
+                  <li><a href="/shelters">Remove a puppy</a></li>
+                  <li><a href="/shelters">Transfer a puppy</a></li>
+                </ul>
+              </li>
+
+              <li role="presentation" class="dropdown">
+               <a class="dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false">
+       Shelters </a>
+                <ul class="dropdown-menu">
+                  <li><a href="/shelters">View the available shelters</a></li>
+                  <li><a href="/shelters">Edit a shelter</a></li>
+                  <li><a href="/shelters">Remove a shelter</a></li>
+                  <li><a href="/shelters/new">Add a shelter</a></li>
+                </ul>
+              </li>
+            </ul>
+    
+            <ul class="nav navbar-nav navbar-right">
+
+              <li role="presentation" class="dropdown">
+               <a class="dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false">
+       Users</a>
+                <ul class="dropdown-menu">
+                  <li><a href="{{ url_for('newUser') }}">Add a user</a></li>
+                  <li><a href='/users'>User list</a></li>
+                </ul>
+              </li>
+
+              
+          <li><a href="{{url_for('gdisconnect')}}">Logout</a></li>
+
+       </ul>
+     </div>
+      <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
+  </nav>
+<h1>Here are all the shelters.</h1><br />
+
+<div class = 'flash' style="width: 500px;">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+        {% for message in messages %}
+            <li> <strong> {{ message }} </strong> </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+</div>
+<h1>Shelter list</h1><br />
+<h2>Choose the dropdown to see the options for each shelter.<br />
+You will not be able to delete a shelter that still contains puppies.</h2><br />
+{% for shelter in shelters %}
+<div class='shelter' id='shelter{{shelter.id}}'>
+<p style="float: right;">Shelter no.: {{shelter.id}}<br />Occupancy: {{shelter.occupancy}}<br /> Capacity: {{shelter.capacity}}<br /><br />
+<select onChange="window.location.href=this.value">
+<option value"Please choose:">Please choose:</option>
+<option value='{{ url_for("idShelters", shelter=shelter.id)}}'>Edit/transfer/remove puppies</option><br />
+<option value='{{ url_for("idShelters", shelter=shelter.id)}}'>View or Adopt puppies</option><br />
+<option value='{{ url_for("editShelter", shelter_id=shelter.id)}}'>Edit this shelter</option><br />
+<option value='{{ url_for("deleteShelter", shelter_id=shelter.id)}}'>Delete this shelter!</option><br />
+</select></p>
+<p>{{shelter.name}}</p>
+<p>{{shelter.address}}<br />
+{{shelter.city}}<br />
+{{shelter.state}}<br />
+{{shelter.zipcode}}<br />
+Website: {{shelter.website}}</p>
+</div> 
+{% endfor %}
+
+<script>
+$(document).ready(function() {
+     function toggleNavbarMethod() {
+        if ($(window).width() > 768) {
+            $('.navbar .dropdown').on('mouseover', function(){
+                $('.dropdown-toggle', this).trigger('click');
+            }).on('mouseout', function(){
+                $('.dropdown-toggle', this).trigger('click').blur();
+            });
+        }
+        else {
+            $('.navbar .dropdown').off('mouseover').off('mouseout');
+        }
+    }
+    toggleNavbarMethod();
+    $(window).resize(toggleNavbarMethod);
+});
+</script>
+</body>
+</html>

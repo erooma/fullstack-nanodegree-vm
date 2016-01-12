@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.2.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <title>Puppy list</title>
+<style>
+{% for puppy in puppies %}
+#pup{{puppy.id}} {
+    background-image: url('/static/images/{{puppy.stats.picture}}');
+    background-size: 120px 120px;
+    background-repeat: no-repeat;
+}
+{% endfor %}
+</style>
+</head>
+
+<body>
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        	<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#topFixedNavbar1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+        <a class="navbar-brand" href="/puppies">AdoptUsDogs</a>
+        </div>
+        <div class="collapse navbar-collapse" id="topFixedNavbar1">
+            <ul class="nav navbar-nav navbar-left">
+
+              <li role="presentation" class="dropdown">
+               <a class="dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false">
+       Puppies</a>
+                <ul class="dropdown-menu">
+                  <li><a href="/puppies">See all of our puppies</a></li>
+                  <li><a href="/shelters">Adopt a puppy</a></li>
+                  <li><a href="{{ url_for('addToShelter') }}">Add a puppy</a></li>
+                  <li><a href="/shelters">Edit puppy stats</a></li>
+                  <li><a href="/shelters">Remove a puppy</a></li>
+                  <li><a href="/shelters">Transfer a puppy</a></li>
+                </ul>
+              </li>
+
+              <li role="presentation" class="dropdown">
+               <a class="dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false">
+       Shelters </a>
+                <ul class="dropdown-menu">
+                  <li><a href="/shelters">View the available shelters</a></li>
+                  <li><a href="/shelters">Edit a shelter</a></li>
+                  <li><a href="/shelters">Remove a shelter</a></li>
+                  <li><a href="/shelters/new">Add a shelter</a></li>
+                </ul>
+              </li>
+            </ul>
+    
+            <ul class="nav navbar-nav navbar-right">
+
+              <li role="presentation" class="dropdown">
+               <a class="dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false">
+       Users</a>
+                <ul class="dropdown-menu">
+                  <li><a href="{{ url_for('newUser') }}">Add a user</a></li>
+                  <li><a href='/users'>User list</a></li>
+                </ul>
+              </li>
+
+              
+                {% if login_session['username'] %}
+
+          <li><a href="{{url_for('gdisconnect')}}">Logout</a></li>
+
+          <li><img src={{login_session['picture']}} + " style = 'width: 40px; height: 40px; margin: 5px;'" /></li>
+
+                {% else %}
+
+          <li role="presentation" class = "dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span style="margin-right:20px;" aria-hidden="true">Login</span></a>          
+                <ul class="dropdown-menu" id="login">
+                <iframe id="loginWindow" src="{{url_for('showLogin')}}"></iframe>
+                     
+                </ul>
+          </li>
+
+                {% endif %}
+       </ul>
+     </div>
+      <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
+  </nav>
+
+<div class="wrapper">
+<div class="container-fluid">
+<h1>Say hello to our puppies!</h1><br />
+<div class = 'flash' style="width: 500px;">
+              {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          
+        <ul>
+        {% for message in messages %}
+            <li> <strong> {{ message }} </strong> </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+
+</div>
+{% for puppy in puppies %}
+<div class='pup' id='pup{{puppy.id}}'>
+<div class='name'><h4>{{puppy.name}}</h4></div>
+<p>{{puppy.gender}}<br />
+{{puppy.weight}} lbs<br /><br />
+Date of birth:<br />
+{{puppy.dateOfBirth}}</p>
+<p>Shelter: {{puppy.shelter_id}}</p>
+
+</div> 
+{% endfor %}
+
+<div class='pages'>
+<div class="ellipsis" style="border:none; color: #FFFFFF;">Page &nbsp;&nbsp;</div>
+{% for page in pagination.iter_pages() %}
+    {% if page %}
+      {% if page != pagination.page %}
+<div class="box"><a href="{{ url_for('puppies', page=page) }}">{{ page }}</a></div>
+      {% else %}
+    <strong class="box" style="border:none; color: #FFFFFF;">{{ page }}</strong>
+      {% endif %}
+    {% else %}
+    <span class='ellipsis'>…</span>
+    {% endif %}
+  {% endfor %}
+  {% if pagination.has_next %}
+<div class="box2"><a href="{{ url_for('puppies', page=pagination.page + 1)}}">Next &nbsp;&raquo;</a></div>
+  {% endif %}
+</div>
+</div>
+</div>
+
+<script>
+$(document).ready(function () {
+    $("iframe").each(function () {
+        var iframe = $(this);
+        iframe.on("load", function () {
+            iframe.contents().click(function (event) {
+                iframe.trigger("click");
+            });
+        });
+
+        iframe.click(function () {
+            $("#login").css("display", "block");
+        });
+    });
+});
+
+// navbar modification thanks to dvdheiden.nl
+$(document).ready(function() {
+     function toggleNavbarMethod() {
+        if ($(window).width() > 768) {
+            $('.navbar .dropdown').on('mouseover', function(){
+                $('.dropdown-toggle', this).trigger('click');
+            }).on('mouseout', function(){
+                $('.dropdown-toggle', this).trigger('click').blur();
+            });
+        }
+        else {
+            $('.navbar .dropdown').off('mouseover').off('mouseout');
+        }
+    }
+    toggleNavbarMethod();
+    $(window).resize(toggleNavbarMethod);
+});
+
+
+</script>
+</body>
+</html>

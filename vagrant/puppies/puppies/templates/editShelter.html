@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.2.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <title>Edit Shelter</title>
+</head>
+
+<body>
+
+
+<h1>Please edit this shelter using the following form.</h1><br />
+<div class='newShelter'>
+<form action="{{url_for('editShelter', shelter_id=shelter.id)}}" method='POST' id='newShelter'>
+<p>Name of shelter:<br />    
+    <input type="text" size="50" maxlength="80" name="name" value='{{shelter.name}}'>
+<p>Address of shelter:<br />
+    <textarea size='250' name='address' rows='5' cols='52' form='newShelter'>{{shelter.address}}</textarea></p>
+<p>City:<br />
+    <input type="text" size="50" name="city" value='{{shelter.city}}'>
+<p>State (2 letters):<br />
+    <input type="text" size="2" name="state" value='{{shelter.state}}'>
+<p>Zipcode (5 digits):<br />
+    <input type="text" size="5" name="zipcode" value='{{shelter.zipCode}}'>
+
+<p>Website:<br />
+    <input type="text" size="50" maxlength="250" name="website" value='{{shelter.website}}'>
+<p>The occupancy must remain at: {{shelter.occupancy}}.<br /><br />
+Capacity:<br />
+    <input type="number" name="capacity" style="width:50px" value='{{shelter.capacity}}'></p>
+<br />
+{{ form.csrf_token }}
+
+{% if form.errors %}
+    <ul class="errors">
+        {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+            {% for error in field_errors %}
+                <li>{{ form[field_name].label }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<input type = 'submit' value='Submit'>
+<a href = "{{ url_for('shelters')}}" style="color: black;"><input type="button" value="Cancel" /></a>
+</form>
+</div> 
+
+</body>
+</html>

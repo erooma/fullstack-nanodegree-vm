@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.2.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <title>New User</title>
+</head>
+<body>
+
+<h1>New User</h1>
+
+{% from "_form.html" import render_field %}
+<form action="{{url_for('newUser')}}" method = 'POST' id='newUser' enctype="multipart/form-data">
+<dl>
+    {{ form.csrf_token }}
+    {{ render_field(form.email) }}
+    {{ render_field(form.password) }}
+
+    <br />
+    {{ render_field(form.name) }}
+    {{ render_field(form.address) }}
+    {{ render_field(form.city) }}
+    {{ render_field(form.state, size=2) }}
+    {{ render_field(form.zipcode, size=5) }}
+    {{ render_field(form.phone) }}
+ 
+    <br />
+    {{ render_field(form.level) }}
+
+<dd style="clear: both;"><input type = 'submit' value='Create' style="color: black;" />
+<a href = "{{ url_for('puppies')}}"><input type="button" value="Cancel" style="color: black;" /></a></dd>
+</dl>
+</form>
+
+
+</body>
+</html>
+
+
+
+
