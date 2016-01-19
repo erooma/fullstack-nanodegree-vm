@@ -12,27 +12,61 @@
 </head>
 
 <body>
-
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#topFixedNavbar1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+        <a class="navbar-brand" href="/puppies">AdoptUsDogs</a>
+        </div>
+        <div class="collapse navbar-collapse" id="topFixedNavbar1">
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="{{url_for('gdisconnect')}}">Logout</a></li>
+            </ul>
+     </div>
+      <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
+</nav>
+<div class="wrapper">
 
 <h1>Please edit this shelter using the following form.</h1><br />
-<div class='newShelter'>
-<form action="{{url_for('editShelter', shelter_id=shelter.id)}}" method='POST' id='newShelter'>
-<p>Name of shelter:<br />    
-    <input type="text" size="50" maxlength="80" name="name" value='{{shelter.name}}'>
-<p>Address of shelter:<br />
-    <textarea size='250' name='address' rows='5' cols='52' form='newShelter'>{{shelter.address}}</textarea></p>
-<p>City:<br />
-    <input type="text" size="50" name="city" value='{{shelter.city}}'>
-<p>State (2 letters):<br />
-    <input type="text" size="2" name="state" value='{{shelter.state}}'>
-<p>Zipcode (5 digits):<br />
-    <input type="text" size="5" name="zipcode" value='{{shelter.zipCode}}'>
+<form action="{{url_for('editShelter', shelter_id=shelter.id)}}" method='POST' id='editShelter'>
 
-<p>Website:<br />
-    <input type="text" size="50" maxlength="250" name="website" value='{{shelter.website}}'>
-<p>The occupancy must remain at: {{shelter.occupancy}}.<br /><br />
-Capacity:<br />
-    <input type="number" name="capacity" style="width:50px" value='{{shelter.capacity}}'></p>
+<div class="form-group">
+<label for="name">Name of shelter:</label>    
+    <input type="text" size="50" maxlength="80" name="name" value='{{shelter.name}}' class="form-control">
+</div>
+
+<div class="form-group">
+<label for="address">Address of shelter:</label>
+    <textarea size='250' name='address' rows='5' cols='52' form='editShelter' class="form-control">{{shelter.address}}</textarea>
+</div>
+
+<div class="form-group">
+<label for="city">City</label>
+    <input type="text" size="50" name="city" value='{{shelter.city}}' class="form-control">
+</div>
+
+<div class="form-group fLeft">
+<label for="state">State (2 letters)</label>
+    <input type="text" size="2" name="state" value='{{shelter.state}}' class="form-control">
+</div>
+<div class="fLeft">&nbsp;&nbsp;</div>
+<div class="form-group fLeft">
+<label for="zipcode">Zipcode (5 digits)</label>
+    <input type="text" size="5" name="zipcode" value='{{shelter.zipCode}}' class="form-control">
+</div>
+
+<div class="form-group" style="clear: both;">
+<label for="website">Website</label>
+    <input type="text" size="50" maxlength="250" name="website" value='{{shelter.website}}' class="form-control">
+</div>
+
+<div class="form-group">
+<p>The occupancy must remain at: {{shelter.occupancy}}</p>
+<label for="capacity">Capacity:</label>
+    <input type="number" name="capacity" length="5" value='{{shelter.capacity}}' class="form-control">
+</div>
 <br />
 {{ form.csrf_token }}
 
@@ -46,10 +80,9 @@ Capacity:<br />
     </ul>
 {% endif %}
 
-<input type = 'submit' value='Submit'>
-<a href = "{{ url_for('shelters')}}" style="color: black;"><input type="button" value="Cancel" /></a>
+<button type = 'submit' class="btn btn-default">Submit</button>
+<a href = "{{ url_for('shelters')}}" style="color: black;"><button type="button" class="btn btn-default">Cancel</button></a>
 </form>
-</div> 
-
+</div>
 </body>
 </html>

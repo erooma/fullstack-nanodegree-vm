@@ -78,33 +78,31 @@ tr:last-child {
                 </ul>
               </li>
 
-              <li class = "dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span style="margin-right:20px;" aria-hidden="true">Login</span></a>          
-                <div class="dropdown-menu login">
-                <form action="" method="post" accept-charset="UTF-8" autocomplete="off">
-                      <div class="form-group-sm">
-                        <label class="sr-only" for="userEmail">Email</label>
-                    <input class="form-control" id="userEmail" type="text" name="userMail" placeholder="email" style="margin-bottom: 5px;"/>
-                       </div>
-                       <div class="form-group-sm">
-                        <input type="text" style="display: none">
-                    <input type='password' style='display: none'>
-                        <label class="sr-only" for="userPassword">Password</label>
-                    <input class="form-control" id="userPassword" type="password" name="userPassword" placeholder="password"/>
-                       </div>
-                       <div class="form-group-sm">
-                    <input id="userRemember" type="checkbox" name="userRemember" value="1"/>
-                        <label for="userRemember"> Remember me</label>
-                <input class="btn-sm btn-default" type="submit" value="Log In" style="margin-top:10px; margin-left: 50px;">
-                       </div>
-                    </form>
-              </div>
+              
+                {% if login_session['username'] %}
+
+          <li><a href="{{url_for('gdisconnect')}}">Logout</a></li>
+
+          <li><img src={{login_session['picture']}} + " style = 'width: 40px; height: 40px; margin: 5px;'" /></li>
+
+                {% else %}
+
+          <li role="presentation" class = "dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span style="margin-right:20px;" aria-hidden="true">Login</span></a>          
+                <ul class="dropdown-menu" id="login">
+                <iframe id="loginWindow" src="{{url_for('showLogin')}}"></iframe>
+                     
+                </ul>
           </li>
+
+                {% endif %}
        </ul>
      </div>
       <!-- /.navbar-collapse -->
     </div>
     <!-- /.container-fluid -->
   </nav>
+
 <div class="wrapper">
 
 <h1>Here are all the users.</h1><br />
@@ -118,7 +116,6 @@ tr:last-child {
         <th>Address</th>
         <th>Phone</th>
         <th>Email</th>
-        <th>Password</th>
     </tr>
 
 {% for user in users %}
@@ -135,7 +132,6 @@ tr:last-child {
             {{user.zipcode}}</td>
         <td>{{user.phone}}</td>
         <td>{{user.email}}</td>
-        <td>{{user.password}}</td>
     </tr>
 
 </div> 
@@ -159,5 +155,23 @@ tr:last-child {
   {% endif %}
 </div>
 </div>
+<script>
+$(document).ready(function() {
+     function toggleNavbarMethod() {
+        if ($(window).width() > 768) {
+            $('.navbar .dropdown').on('mouseover', function(){
+                $('.dropdown-toggle', this).trigger('click');
+            }).on('mouseout', function(){
+                $('.dropdown-toggle', this).trigger('click').blur();
+            });
+        }
+        else {
+            $('.navbar .dropdown').off('mouseover').off('mouseout');
+        }
+    }
+    toggleNavbarMethod();
+    $(window).resize(toggleNavbarMethod);
+});
+</script>
 </body>
 </html>

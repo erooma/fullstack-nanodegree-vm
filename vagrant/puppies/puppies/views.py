@@ -313,7 +313,7 @@ def editPuppy(puppy_id):
             filename = form.oldPicture.data           
         session.query(Stats).filter(Stats.puppy_id == puppy_id).update({'needs': form.needs.data, 'picture' : filename})
         session.commit()
-        flash("You successfully edited your puppy information.")
+        flash ("You successfully edited your puppy information.")
         return redirect(url_for('idShelters', shelter=editedPuppy.shelter_id))
     else:
         return render_template('editPuppy.html', form=form, puppy=editedPuppy)
@@ -427,7 +427,7 @@ def Users(page):
     if not users and page !=1:
         abort(404)
     pagination = Pagination(page, USERS_PER_PAGE, count)
-    return render_template ('users.html', users=users, pagination=pagination)
+    return render_template ('users.html', users=users, pagination=pagination, login_session=login_session)
 
 
 

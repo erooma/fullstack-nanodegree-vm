@@ -25,34 +25,33 @@
       <!-- /.navbar-collapse -->
     </div>
     <!-- /.container-fluid -->
-  </nav>
+</nav>
 <div class="wrapper">
-<h1>New Puppy</h1>
+<h1>Add a new puppy</h1>
+<br />
 
 {% from "_form.html" import render_field %}
 <form action="{{url_for('newPuppy', shelter_id=shelter_id)}}" method = 'POST' id='newPuppy' enctype="multipart/form-data">
-<dl>
-    {{ form.csrf_token }}
-    {{ render_field(form.name) }}
-    {{ render_field(form.gender) }}
-    {{ render_field(form.dateOfBirth) }}
-    {{ render_field(form.weight) }}
-    {{ render_field(form.needs, rows=5, cols=22)}}
 
-<br />
+    {{ form.csrf_token }}
+    {{ render_field(form.name, class="form-control") }}
+    {{ render_field(form.gender, class="form-control", placeholder="Male or Female") }}
+    {{ render_field(form.dateOfBirth, class="form-control") }}
+    {{ render_field(form.weight, class="form-control") }}
+    {{ render_field(form.needs, class="form-control", rows=5, cols=22)}}
+
 <div class="hiddenPicture">
 <img alt="Picture not available" style="width:150px; height:150px; float: left; margin-right: 10px; margin-bottom: 10px;" id="hiddenPicture" style="float:left ; margin-right: 10px;" />
 </div>
-<dt><label for='picture'>Puppy picture if available<br /> (an image smaller than 2Mb)</label>:</dt><br />
-<dd><input type = 'file' name='picture' id='newPuppyPicture' ></dd>
-<br /><br /><br />
-<dt></dt> 
+<div class="form-group">
+<label for='picture'>Puppy picture if available<br /> (an image smaller than 2Mb)</label>
+<input type = 'file' name='picture' id='newPuppyPicture' class="btn btn-default">
+</div>
 <br />
-<dd style="clear: both;"><input type = 'submit' value='Create' style="color:black;" />
-<a href = "{{ url_for('puppies')}}" style="color:black;"><input type="button" value="Cancel" /></a></dd>
-</dl>
+<button type="submit" class="btn btn-default" style="color:black; clear: both;">&nbsp;&nbsp;Add&nbsp;&nbsp;</button>
+<a href = "{{ url_for('puppies')}}" style="color:black;"><button class="btn btn-default">Cancel</button></a>
 </form>
-
+</div>
 
 
 <script>

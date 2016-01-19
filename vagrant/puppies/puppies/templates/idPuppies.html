@@ -20,10 +20,10 @@
     </style>
 </head>
 <body>
-  <nav class="navbar navbar-default navbar-fixed-top">
+   <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
       <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#topFixedNavbar1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#topFixedNavbar1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
         <a class="navbar-brand" href="/puppies">AdoptUsDogs</a>
         </div>
         <div class="collapse navbar-collapse" id="topFixedNavbar1">
@@ -55,38 +55,8 @@
             </ul>
     
             <ul class="nav navbar-nav navbar-right">
-
-              <li role="presentation" class="dropdown">
-               <a class="dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false">
-       Users</a>
-                <ul class="dropdown-menu">
-                  <li><a href="{{ url_for('newUser') }}">Add a user</a></li>
-                  <li><a href='/users'>User list</a></li>
-                </ul>
-              </li>
-
-              <li class = "dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span style="margin-right:20px;" aria-hidden="true">Login</span></a>          
-                <div class="dropdown-menu login">
-                <form action="" method="post" accept-charset="UTF-8" autocomplete="off">
-                      <div class="form-group-sm">
-                        <label class="sr-only" for="userEmail">Email</label>
-                        <input class="form-control" id="userEmail" type="text" name="userMail" placeholder="email" style="margin-bottom: 5px;"/>
-                       </div>
-                       <div class="form-group-sm">
-                        <input type="text" style="display: none">
-                        <input type='password' style='display: none'>
-                        <label class="sr-only" for="userPassword">Password</label>
-                        <input class="form-control" id="userPassword" type="password" name="userPassword" placeholder="password"/>
-                       </div>
-                       <div class="form-group-sm">
-                        <input id="userRemember" type="checkbox" name="userRemember" value="1"/>
-                        <label for="userRemember"> Remember me</label>
-                <input class="btn-sm btn-default" type="submit" value="Log In" style="margin-top:10px; margin-left: 50px;">
-                       </div>
-                    </form>
-                </div>
-          </li>
-       </ul>
+              <li><a href="{{url_for('gdisconnect')}}">Logout</a></li>
+            </ul>
      </div>
       <!-- /.navbar-collapse -->
     </div>
@@ -94,6 +64,7 @@
   </nav>
   <div class="wrapper">
 <h1>Here are all the puppies in shelter {{shelter}}!</h1>
+<br />
 <div class = 'flash' style="width: 500px;">
     {% with messages = get_flashed_messages() %}
       {% if messages %}
@@ -115,7 +86,7 @@
 {{puppy.dateOfBirth}}</p>
 <div class='links'>
     <select onChange="window.location.href=this.value">
-    <option value="Selection">Selection</option>
+    <option value="">Select:</option>
     <option value="{{ url_for('editPuppy', puppy_id=puppy.id) }}">Modify</option>
     <option value="{{ url_for('adopt', puppy_id=puppy.id) }}">Adopt</option>
     <option value="{{ url_for('transfer', puppy_id=puppy.id) }}">Transfer</option>
@@ -144,5 +115,23 @@
   {% endif %}
 </div>
 </div>
+<script>
+$(document).ready(function() {
+     function toggleNavbarMethod() {
+        if ($(window).width() > 768) {
+            $('.navbar .dropdown').on('mouseover', function(){
+                $('.dropdown-toggle', this).trigger('click');
+            }).on('mouseout', function(){
+                $('.dropdown-toggle', this).trigger('click').blur();
+            });
+        }
+        else {
+            $('.navbar .dropdown').off('mouseover').off('mouseout');
+        }
+    }
+    toggleNavbarMethod();
+    $(window).resize(toggleNavbarMethod);
+});
+</script>
 </body>
 </html>

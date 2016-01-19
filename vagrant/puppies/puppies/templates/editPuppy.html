@@ -9,51 +9,56 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.2.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <title>Modify puppy</title>
-<style>
-.adopt {
-    float: left;
-    width: 150px;
-    font-family:Gotham, 'Helvetica Neue', Helvetica, Arial,
-    sans-serif;
-    font-weight:bold;
-    height: 150px;
-    border: 2px solid grey;
-    position: relative;
-    text-align: left;
-    background-image: url('/static/images/{{puppy.stats.picture}}');
-    background-size: 150px 150px;
-    background-repeat: no-repeat;
-    margin: 5px;
-}
-</style>
+
 </head>
 
 <body>
-
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#topFixedNavbar1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+        <a class="navbar-brand" href="/puppies">AdoptUsDogs</a>
+        </div>
+        <div class="collapse navbar-collapse" id="topFixedNavbar1">
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="{{url_for('gdisconnect')}}">Logout</a></li>
+            </ul>
+     </div>
+      <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
+</nav>
+<div class="wrapper">
 <h1>Here is the puppy that you chose to modify.</h1><br />
 
-<form action="{{url_for('editPuppy', puppy_id=puppy.id)}}" method = 'POST' id='editPuppy' enctype="multipart/form-data">
-<img src='/static/images/{{puppy.stats.picture}}' alt="Picture not available" style="width:150px; height:150px; float: left; margin-right: 10px; margin-bottom: 10px;" />
-<div class="hiddenPicture">
-<h3 style="float: left"> -- becomes -- > &nbsp;</h3>
-<img alt="Picture not available" style="width:150px; height:150px; float: left; margin-right: 10px; margin-bottom: 10px;" id="hiddenPicture" />
-</div>
-<dt><label for='picture'>Replace image?<br />
-(the old image will be removed)<br />Please choose an image file less than 2Mb:</label></dt><br />
-<dd><input type = 'file' name='picture' id='newPuppyPicture' accept="image/*"></dd>
+<form action="{{url_for('editPuppy', puppy_id=puppy.id)}}" method = 'POST'  enctype="multipart/form-data" id="editPuppy2">
+<img src='/static/images/{{puppy.stats.picture}}' alt="Picture not available" style="width:150px; height:150px; margin-right: 10px; margin-bottom: 10px; margin-left: 10px;" class="fLeft" />
 
+<div class="hiddenPicture">
+<h3 class="fLeft"><br />&larr; old<br /><br /><br />
+new &rarr;&nbsp;</h3>
+<img alt="Picture not available" style="width:150px; height:150px; margin-right: 10px; margin-bottom: 10px;" id="hiddenPicture" />
+</div>
+
+<label for='picture' id='pictureLabel'>Replace image?<br />Please choose an image file less than 2Mb.<br />(the old image will be removed)</label>
+<div id="editPuppy">
+<input type = 'file' name='picture' id='newPuppyPicture' accept="image/*" class="form-control">
 <input type = 'hidden' name='oldPicture' value="{{puppy.stats.picture}}">
 
+<br />
 <p style="Clear: left;">Name:</p>
-<input type = 'text' size='30' name='name' value="{{puppy.name}}">
+<input type = 'text' size='30' name='name' value="{{puppy.name}}" class="form-control">
+<br />
 <p>Gender:</p>
-<input type = 'text' size='30' name='gender' value="{{puppy.gender}}">
+<input type = 'text' size='30' name='gender' value="{{puppy.gender}}" class="form-control">
+<br />
 <p>Date of birth (YYYY-MM-DD):</p>
-<input type = 'text' size='30' name='dateOfBirth' value="{{puppy.dateOfBirth}}">
+<input type = 'text' size='30' name='dateOfBirth' value="{{puppy.dateOfBirth}}"class="form-control">
+<br />
 <p>Weight (lbs):</p>
-<input type = 'text' size='30' name='weight' value="{{puppy.weight}}"><br /><br />
+<input type = 'text' size='30' name='weight' value="{{puppy.weight}}" class="form-control"><br />
 <p>Any particular needs that your puppy might have?</p>
-<textarea size='500' name='needs' rows='10' cols='100' form='editPuppy'>{{puppy.stats.needs}}</textarea><br />
+<textarea size='500' name='needs' rows='10' cols='100' form='editPuppy' class="form-control">{{puppy.stats.needs}}</textarea><br />
 
 {{ form.csrf_token }}
 {% if form.errors %}
@@ -65,11 +70,13 @@
         {% endfor %}
     </ul>
 {% endif %}
-<br />
-<input type = 'submit' value='Modify'>
-<a href = "{{ url_for('idShelters', shelter=puppy.shelter_id)}}"><input type="button" value="Cancel" style="color: black;" /></a>
+
+<button button class="btn btn-default" type = 'submit'>Modify</button>
+<a href = "{{ url_for('idShelters', shelter=puppy.shelter_id)}}"><button class="btn btn-default" type="button" style="color: black;" />Cancel</button></a>
+</div>
 </form>
 
+</div>
 
 <script>
 $(document).ready(function() {
@@ -90,6 +97,7 @@ $(document).ready(function() {
                    hidden_picture.attr("src" , e.target.result);
                 }
                 $(".hiddenPicture").show();
+                $("#pictureLabel").hide();
                 reader.readAsDataURL($(this)[0].files[0]);
                 } else {
                 alert("This browser does not support FileReader/upload preview.");

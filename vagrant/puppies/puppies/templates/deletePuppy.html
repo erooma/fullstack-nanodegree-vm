@@ -10,7 +10,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <title>Remove puppy</title>
 <style>
-.adopt {
+.remove {
     float: left;
     width: 150px;
     font-family:Gotham, 'Helvetica Neue', Helvetica, Arial,
@@ -29,12 +29,29 @@
 </head>
 
 <body>
-
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#topFixedNavbar1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+        <a class="navbar-brand" href="/puppies">AdoptUsDogs</a>
+        </div>
+        <div class="collapse navbar-collapse" id="topFixedNavbar1">
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="{{url_for('gdisconnect')}}">Logout</a></li>
+            </ul>
+     </div>
+      <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
+</nav>
+<div class="wrapper">
 <h1>Here is the puppy that you wish to remove.</h1>
-<P>You will also be removing this puppies' picture from the database.</p>
+
+<p>You will also be removing this puppies' picture from the database.</p>
 <br />
 
-<div class='adopt'></div>
+<div class='remove'></div>
+<br />
 <p>Name: {{puppy.name}}</p>
 <p>Gender: {{puppy.gender}}<br />
 Weight: {{puppy.weight}} lbs<br />
@@ -46,8 +63,9 @@ Needs: {{puppy.stats.needs}}</p>
 <input type="hidden" value="{{puppy.id}}" name="deleteID">
 <input type="hidden" value="{{puppy.stats.picture}}" name="deletePicture">
 {{ form.csrf_token }}
-<input type = 'submit' value='Remove'>
-<a href="{{url_for ('idShelters', shelter=puppy.shelter_id)}}" style="color: black;"><input type="button" value="Return" /></a>
+<button type = 'submit' class="btn btn-default">Remove</button>
+<a href="{{url_for ('idShelters', shelter=puppy.shelter_id)}}" style="color: black;"><button type="button" class="btn btn-default">Return</button></a>
+</div>
 </div>
 </body>
 </html>

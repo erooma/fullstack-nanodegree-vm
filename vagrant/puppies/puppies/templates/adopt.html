@@ -9,29 +9,25 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.2.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <title>Adopt a puppy</title>
-<style>
-.adopt {
-    float: left;
-    width: 150px;
-    font-family:Gotham, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-weight:bold;
-    height: 150px;
-    border: 2px solid grey;
-    text-align: left;
-    background-image: url('/static/images/{{puppy.stats.picture}}');
-    background-size: 150px 150px;
-    background-repeat: no-repeat;
-    margin: 5px;
-}
-#adoptPuppy {
-    clear: both;
-    margin-left: 5px;
-}
-</style>
 </head>
 
 <body>
-
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#topFixedNavbar1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+        <a class="navbar-brand" href="/puppies">AdoptUsDogs</a>
+        </div>
+        <div class="collapse navbar-collapse" id="topFixedNavbar1">
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="{{url_for('gdisconnect')}}">Logout</a></li>
+            </ul>
+     </div>
+      <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
+</nav>
+<div class="wrapper">
 <h1>Here is the puppy that you chose to adopt.</h1><br />
 
 <div class = 'flash' style="width: 500px;">
@@ -59,8 +55,9 @@ Needs: {{puppy.stats.needs}}</p>
 <input type="hidden" value="{{puppy.id}}" name="adoptID">
 <p>Enter user id:<input type="text" name="userID" size="5"></p>
 {{ form.csrf_token }}
-<input type = 'submit' value='Adopt'> <a href="{{url_for ('idShelters', shelter=puppy.shelter_id)}}" style="color: black;"><input type="button" value="Cancel" /></a>
+<button type="submit" class="btn btn-default" style="color:black; clear: both;">Adopt&nbsp;</button>
+<a href="{{url_for ('idShelters', shelter=puppy.shelter_id)}}" style="color: black;"><button type="button" class="btn btn-default">Cancel</button></a>
 </form>
-
+</div>
 </body>
 </html>
