@@ -10,7 +10,7 @@
 "/images/dog-918625__340.jpg",
 "/images/dog-992431__340.jpg",
 "/images/dogue-de-bordeaux-1047522__340.jpg",
-"/images/franch-bulldog-1016912__340.jpg",
+"/images/french-bulldog-1016912__340.jpg",
 "/images/labrador-805861__340.jpg",
 "/images/painting-287403__340.jpg",
 "/images/puppy-1047722__340.jpg",

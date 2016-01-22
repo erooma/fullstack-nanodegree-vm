@@ -12,52 +12,21 @@
 </head>
 
 <body>
-   <nav class="navbar navbar-default navbar-fixed-top">
+<nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
       <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#topFixedNavbar1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
         <a class="navbar-brand" href="/puppies">AdoptUsDogs</a>
         </div>
         <div class="collapse navbar-collapse" id="topFixedNavbar1">
-            <ul class="nav navbar-nav navbar-left">
-
-              <li role="presentation" class="dropdown">
-               <a class="dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false">
-       Puppies</a>
-                <ul class="dropdown-menu">
-                  <li><a href="/puppies">See all of our puppies</a></li>
-                  <li><a href="/shelters">Adopt a puppy</a></li>
-                  <li><a href="{{ url_for('addToShelter') }}">Add a puppy</a></li>
-                  <li><a href="/shelters">Edit puppy stats</a></li>
-                  <li><a href="/shelters">Remove a puppy</a></li>
-                  <li><a href="/shelters">Transfer a puppy</a></li>
-                </ul>
-              </li>
-
-              <li role="presentation" class="dropdown">
-               <a class="dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false">
-       Shelters </a>
-                <ul class="dropdown-menu">
-                  <li><a href="/shelters">View the available shelters</a></li>
-                  <li><a href="/shelters">Edit a shelter</a></li>
-                  <li><a href="/shelters">Remove a shelter</a></li>
-                  <li><a href="/shelters/new">Add a shelter</a></li>
-                </ul>
-              </li>
-            </ul>
-    
             <ul class="nav navbar-nav navbar-right">
-
- 
-          <li><a href="{{url_for('gdisconnect')}}">Logout</a></li>
-
-       </ul>
+              <li><a href="{{url_for('gdisconnect')}}">Logout</a></li>
+            </ul>
      </div>
       <!-- /.navbar-collapse -->
     </div>
     <!-- /.container-fluid -->
-  </nav>
-
+</nav>
 <div class="wrapper">
 
 <h1>Here are all the shelters.</h1><br />

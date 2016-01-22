@@ -21,7 +21,9 @@ class Puppy(Base):
     dateOfBirth = Column(Date)
     weight      = Column(Numeric(10))
     shelter_id  = Column(Integer, ForeignKey('shelter.id'))
+    user_id     = Column(Integer, ForeignKey('user.id'), default = 0)
     adopters    = relationship('Adopter', secondary = 'puppy_adopters')
+    user        = relationship('User')
 
 class Shelter(Base):
     __tablename__ = 'shelter'
@@ -35,6 +37,8 @@ class Shelter(Base):
     website     = Column(String)
     capacity    = Column(Integer)
     occupancy   = Column(Integer, default = 0)
+    user_id     = Column(Integer, ForeignKey('user.id'), default = 0)
+    user        = relationship('User')
     puppy       = relationship('Puppy', backref='shelter')
     __table_args__ = (CheckConstraint(capacity >= occupancy, name='check_capacity'),)
 
@@ -55,13 +59,8 @@ class User(Base):
     __tablename__ = 'user'
     id          = Column(Integer, primary_key = True)
     name        = Column(String(80), nullable = False)
-    address     = Column(String(250))
-    city        = Column(String(80))
-    state       = Column(String(2))
-    zipcode     = Column(String(5))   
-    phone       = Column(String(10))
-    email       = Column(String, nullable = False)
-    password    = Column(String)
+    email       = Column(String(250), nullable = False)
+    picture     = Column(String(250))
 
 class Admin(Base):
     __tablename__ = 'admin'

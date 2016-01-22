@@ -80,15 +80,22 @@
     {% endwith %}
 </div>
 <h1>Shelter list</h1><br />
-<h2>Choose the dropdown to see the options for each shelter.<br />
-You will not be able to delete a shelter that still contains puppies.</h2><br />
+<h2>Choose the dropdown to see the options for each shelter.</h2><br />
 {% for shelter in shelters %}
 <div class='shelter' id='shelter{{shelter.id}}'>
 <p style="float: right;">Shelter no.: {{shelter.id}}<br />Occupancy: {{shelter.occupancy}}<br /> Capacity: {{shelter.capacity}}<br /><br />
 <select onChange="window.location.href=this.value">
 <option value"Please choose:">Please choose:</option>
-<option value='{{ url_for("editShelter", shelter_id=shelter.id)}}'>Edit this shelter</option><br />
-<option value='{{ url_for("deleteShelter", shelter_id=shelter.id)}}'>Delete this shelter!</option><br />
+
+<option value='{{ url_for("idShelters", shelter=shelter.id)}}'>View or Adopt puppies&nbsp;</option><br />
+
+    {% if login_session['admin'] > 1 %}
+
+<option value='{{ url_for("idShelters", shelter=shelter.id)}}'>Edit puppies</option><br />
+<option value='{{ url_for("idShelters", shelter=shelter.id)}}'>Transfer or remove puppies</option><br />
+
+    {% endif %}
+
 </select></p>
 <p>{{shelter.name}}</p>
 <p>{{shelter.address}}<br />

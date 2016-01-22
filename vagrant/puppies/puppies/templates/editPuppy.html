@@ -58,7 +58,7 @@ new &rarr;&nbsp;</h3>
 <p>Weight (lbs):</p>
 <input type = 'text' size='30' name='weight' value="{{puppy.weight}}" class="form-control"><br />
 <p>Any particular needs that your puppy might have?</p>
-<textarea size='500' name='needs' rows='10' cols='100' form='editPuppy' class="form-control">{{puppy.stats.needs}}</textarea><br />
+<textarea size='500' name='needs' id='needs' rows='5' cols='100' form='editPuppy2' class="form-control">{{puppy.stats.needs}}</textarea><br />
 
 {{ form.csrf_token }}
 {% if form.errors %}

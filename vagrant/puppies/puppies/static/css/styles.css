@@ -17,19 +17,6 @@ h2 {
 p, dd, dt { 
     color: white;
 }
-.adopt {
-    float: left;
-    width: 150px;
-    font-family:Gotham, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-weight:bold;
-    height: 150px;
-    border: 2px solid grey;
-    text-align: left;
-    background-image: url('/static/images/{{puppy.stats.picture}}');
-    background-size: 150px 150px;
-    background-repeat: no-repeat;
-    margin: 5px;
-}
 #adoptPuppy {
     clear: both;
     margin-left: 5px;

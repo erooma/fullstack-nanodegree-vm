@@ -35,11 +35,18 @@
        Puppies</a>
                 <ul class="dropdown-menu">
                   <li><a href="/puppies">See all of our puppies</a></li>
-                  <li><a href="/shelters">Adopt a puppy</a></li>
+                  <li><a href="/puppies_by_shelter">Adopt a puppy</a></li>
+                  <li><a href="{{ url_for('adoptions', user_ID=login_session['user_id'], page=1) }}">See <u>my</u> adoptions</a></li>
                   <li><a href="{{ url_for('addToShelter') }}">Add a puppy</a></li>
-                  <li><a href="/shelters">Edit puppy stats</a></li>
-                  <li><a href="/shelters">Remove a puppy</a></li>
-                  <li><a href="/shelters">Transfer a puppy</a></li>
+
+                  {% if login_session['admin'] and login_session['admin']> 1 %}
+
+                  <li><a href="/puppies_by_shelter">Edit puppy stats</a></li>
+                  <li><a href="/puppies_by_shelter">Remove a puppy</a></li>
+                  <li><a href="/puppies_by_shelter">Transfer a puppy</a></li>
+
+                  {% endif %}
+
                 </ul>
               </li>
 
@@ -47,15 +54,38 @@
                <a class="dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false">
        Shelters </a>
                 <ul class="dropdown-menu">
-                  <li><a href="/shelters">View the available shelters</a></li>
-                  <li><a href="/shelters">Edit a shelter</a></li>
-                  <li><a href="/shelters">Remove a shelter</a></li>
+                
+                  <li><a href="/puppies_by_shelter">View puppies by shelter</a></li>
+
+                  {% if login_session['admin'] and login_session['admin'] > 1 %}
+                  <li><a href="/shelters">Edit or delete a shelter</a></li>
                   <li><a href="/shelters/new">Add a shelter</a></li>
+
+                  {% endif %}
+
                 </ul>
               </li>
             </ul>
     
             <ul class="nav navbar-nav navbar-right">
+
+                  {% if login_session['username'] %}
+
+                <li role="presentation" class="dropdown">
+               <a class="dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false" style="color: red;">
+       Demo features</a>
+                <ul class="dropdown-menu">
+                  <li><a href="">You are currently admin level: {{login_session['admin']}}.</a></li>
+                  <li><a href="">For temporary permissions changes:</a></li>
+                  <li><a href="{{ url_for('changeAdmin', level=1) }}">- change to level 1 - basic permissions</a></li>
+                  <li><a href="{{ url_for('changeAdmin', level=2) }}">- change to level 2 - advanced permissions (view shelters, puppies)</a></li>
+                  <li><a href="{{ url_for('changeAdmin', level=3) }}">- change to level 3 - master permissions (view shelters, puppies, users)</a></li>
+                </ul>
+              </li>
+
+                  {% endif %}
+
+                  {% if login_session['admin'] and login_session['admin'] > 2 %}
 
               <li role="presentation" class="dropdown">
                <a class="dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false">
@@ -66,14 +96,15 @@
                 </ul>
               </li>
 
-              
-                {% if login_session['username'] %}
+                  {% endif %}
+
+                  {% if login_session['username'] %}
 
           <li><a href="{{url_for('gdisconnect')}}">Logout</a></li>
 
           <li><img src={{login_session['picture']}} + " style = 'width: 40px; height: 40px; margin: 5px;'" /></li>
 
-                {% else %}
+                  {% else %}
 
           <li role="presentation" class = "dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span style="margin-right:20px;" aria-hidden="true">Login</span></a>          
