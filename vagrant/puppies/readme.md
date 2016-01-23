@@ -1,12 +1,9 @@
 ## Catalog application submission/Udacity
 AdoptUsDogs - -- implementation of a catalog system
+
 23/01/2016 Andrew Moore
 
-These files create an application that stores information about animal shelters 
-and their canine occupants. Standard users must sign in to the application
-using their Google account (as a means of offering strict security precautions)
-and may view, add or adopt puppies as necessary. Administrators have the 
-ability to edit both the occupants of the shelters and the information
+These files create an application that stores information about animal shelters and their canine occupants. Standard users must sign in to the application using their Google account (as a means of offering strict security precautions) and may view, add or adopt puppies as necessary. Administrators have the ability to edit both the occupants of the shelters and the information
 pertaining to the shelters themselves, while higher privileges allow for
 (theoretical) user-management capabilities.
 
@@ -41,14 +38,10 @@ the system in addition to their adopted puppies.
 
 Choices from all  menus will change depending on the user privileges.
 
-Please note the presence of a *demonstration* option on the main screen
+The presence of a *demonstration* option on the main screen
 for a user to temporarily change his/her administrator privileges. 
 This is for evaluation purposes only, and allows the evaluator to see the 
 changes available at each administration level.
-
-* Please note that full user administration (deletion, password reminders etc)
-has not been implemented in this version, in part because of the use of the
-OAuth2 Google log-in.
 
 ### Data options
 
@@ -64,7 +57,7 @@ OAuth2 Google log-in.
 
 This version contains demonstration puppies with images, shelters and
 users for evaluation purposes. No similarities with real shelters, dogs, or 
-users is implied.
+users is implied or intended. All images have been obtained royalty-free.
 
 ### Requirements
 
