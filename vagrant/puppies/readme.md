@@ -64,6 +64,9 @@ users is implied or intended. All images have been obtained royalty-free.
 The application is run from the file: runserver.py and uses localhost: 5000 on
 a virtual server.
 
+The client_secrets file from Google developers console has not been included
+for security purposes.
+
 This application is coded in python and uses the frameworks Flask, 
 http://flask.pocoo.org/, and the extensions FlaskWTF, 
 https://flask-wtf.readthedocs.org/en/latest/, and WTForms, 
