@@ -48,8 +48,14 @@ tr:last-child {
                 <ul class="dropdown-menu">
                   <li><a href="/puppies">See all of our puppies</a></li>
                   <li><a href="/puppies_by_shelter">Adopt a puppy</a></li>
-                  <li><a href="{{ url_for('adoptions', user_ID=login_session['user_id'], page=1) }}">See <u>my</u> adoptions</a></li>
+                  
                   <li><a href="{{ url_for('addToShelter') }}">Add a puppy</a></li>
+
+                  {% if login_session['user_id'] %}
+
+                  <li><a href="{{ url_for('adoptions', user_ID=login_session['user_id'], page=1) }}">See <u>my</u> adoptions</a></li>
+
+                  {% endif %}
 
                   {% if login_session['admin'] and login_session['admin']> 1 %}
 
@@ -68,6 +74,7 @@ tr:last-child {
                 <ul class="dropdown-menu">
                 
                   <li><a href="/puppies_by_shelter">View puppies by shelter</a></li>
+                  <li><a href="/sheltersInfo">Download shelter or puppy information</a></li>
 
                   {% if login_session['admin'] and login_session['admin'] > 1 %}
                   <li><a href="/shelters">Edit or delete a shelter</a></li>

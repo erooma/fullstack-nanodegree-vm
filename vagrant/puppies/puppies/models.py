@@ -1,5 +1,10 @@
+# models file for application
+# AdoptUsDogs - -- implementation of a catalog system
+# 23/01/2016 Andrew Moore
+
 from math import ceil
 
+# creates pagination definitions for templates (from flask snippets 44)
 class Pagination(object):
 
     def __init__(self, page, per_page, total_count):

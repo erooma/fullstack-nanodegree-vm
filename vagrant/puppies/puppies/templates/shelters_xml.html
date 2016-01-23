@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<shelters>
+{% for shelter in shelters %}
+<shelter>
+<id>{{shelter.id}}</id>
+<name>{{shelter.name}}</name>
+<address>{{shelter.address}}</address>
+<city>{{shelter.city}}</city>
+<state>{{shelter.state}}</state>
+<zipCode>{{shelter.zipCode}}</zipCode>
+<occupancy>{{shelter.occupancy}}</occupancy>
+<capacity>{{shelter.capacity}}</capacity>
+<website>{{shelter.website}}</website>
+</shelter>
+{% endfor %}
+</shelters>

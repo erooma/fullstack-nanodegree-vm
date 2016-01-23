@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<puppies>
+{% for puppy in puppies %}
+<puppy>
+<id>{{puppy.id}}</id>
+<name>{{puppy.name}}</name>
+<gender>{{puppy.gender}}</gender>
+<weight>{{puppy.weight}}</weight>
+<dateOfBirth>{{puppy.dateOfBirth}}</dateOfBirth>
+<needs>{{puppy.stats.needs}}</needs>
+<picture>{{puppy.stats.picture}}</picture>
+</puppy>
+{% endfor %}
+
+</puppies>

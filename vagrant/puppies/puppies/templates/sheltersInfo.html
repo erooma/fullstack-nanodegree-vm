@@ -19,51 +19,7 @@
         <a class="navbar-brand" href="/puppies">AdoptUsDogs</a>
         </div>
         <div class="collapse navbar-collapse" id="topFixedNavbar1">
-            <ul class="nav navbar-nav navbar-left">
-
-              <li role="presentation" class="dropdown">
-               <a class="dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false">
-       Puppies</a>
-                <ul class="dropdown-menu">
-                  <li><a href="/puppies">See all of our puppies</a></li>
-                  <li><a href="/puppies_by_shelter">Adopt a puppy</a></li>
-                  
-                  <li><a href="{{ url_for('addToShelter') }}">Add a puppy</a></li>
-
-                  {% if login_session['user_id'] %}
-
-                  <li><a href="{{ url_for('adoptions', user_ID=login_session['user_id'], page=1) }}">See <u>my</u> adoptions</a></li>
-
-                  {% endif %}
-
-                  {% if login_session['admin'] and login_session['admin']> 1 %}
-
-                  <li><a href="/puppies_by_shelter">Edit puppy stats</a></li>
-                  <li><a href="/puppies_by_shelter">Remove a puppy</a></li>
-                  <li><a href="/puppies_by_shelter">Transfer a puppy</a></li>
-
-                  {% endif %}
-
-                </ul>
-              </li>
-
-              <li role="presentation" class="dropdown">
-               <a class="dropdown-toggle" data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false">
-       Shelters </a>
-                <ul class="dropdown-menu">
-                
-                  <li><a href="/puppies_by_shelter">View puppies by shelter</a></li>
-                  <li><a href="/sheltersInfo">Download shelter or puppy information</a></li>
-
-                  {% if login_session['admin'] and login_session['admin'] > 1 %}
-                  <li><a href="/shelters">Edit or delete a shelter</a></li>
-                  <li><a href="/shelters/new">Add a shelter</a></li>
-
-                  {% endif %}
-
-                </ul>
-              </li>
-            </ul>
+   
             <ul class="nav navbar-nav navbar-right">
               <li><a href="{{url_for('gdisconnect')}}">Logout</a></li>
             </ul>
@@ -85,17 +41,23 @@
         {% endif %}
     {% endwith %}
 </div>
-<h1>Shelter list</h1><br />
-<h2>Choose the dropdown to see the options for each shelter.<br />
-You will not be able to delete a shelter that still contains puppies.</h2><br />
+<h1>Information on shelters and occupants</h1><br />
+<h2>The information you wish to see will open as a separate page.</h2>
+<br />
+
+<a href="{{ url_for('shelterJSON') }}" target="_new"><button type="button" class="btn btn-info" style="color:black; margin-left: 5px; width: 180px; font-size: 0.9em;">All shelter information JSON</button></a>
+<a href="{{ url_for('shelterXML') }}" target="_new"><button type="button" class="btn btn-info" style="color:black; margin-left: 5px; width: 180px; font-size: 0.9em;">All shelter information XML</button></a>
+<br />
+<br />
+
 {% for shelter in shelters %}
 <div class='shelter' id='shelter{{shelter.id}}'>
-<p style="float: right;">Shelter no.: {{shelter.id}}<br />Occupancy: {{shelter.occupancy}}<br /> Capacity: {{shelter.capacity}}<br /><br />
-<select onChange="window.location.href=this.value">
-<option value"Please choose:">Please choose:</option>
-<option value='{{ url_for("editShelter", shelter_id=shelter.id)}}'>Edit this shelter</option><br />
-<option value='{{ url_for("deleteShelter", shelter_id=shelter.id)}}'>Delete this shelter!</option><br />
-</select></p>
+<p style="float: right;">Shelter no.: {{shelter.id}}<br />Occupancy: {{shelter.occupancy}}<br /> Capacity: {{shelter.capacity}}<br />
+
+<a href="{{ url_for('puppyJSON', shelter_id=shelter.id) }}" target="_new"><button type="button" class="btn btn-info" style="color:black; margin-right: 5px; width: 158px; font-size: 0.8em; margin-top: 4px;">Puppy Information JSON</button></a><br />
+<a href="{{ url_for('puppyXML', shelter_id=shelter.id) }}" target="_new"><button type="button" class="btn btn-info" style="color:black; margin-right: 5px; width: 158px; font-size: 0.8em; margin-top: 4px;">Puppy Information XML</button></a>
+
+</p>
 <p>{{shelter.name}}</p>
 <p>{{shelter.address}}<br />
 {{shelter.city}}<br />

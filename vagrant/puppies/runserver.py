@@ -1,3 +1,7 @@
+# runserver file for application
+# AdoptUsDogs - -- implementation of a catalog system
+# 23/01/2016 Andrew Moore
+
 from puppies import app
 
 
