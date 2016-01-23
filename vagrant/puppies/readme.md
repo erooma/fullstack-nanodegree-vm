@@ -61,6 +61,9 @@ users is implied or intended. All images have been obtained royalty-free.
 
 ### Requirements
 
+The application is run from the file: runserver.py and uses localhost: 5000 on
+a virtual server.
+
 This application is coded in python and uses the frameworks Flask, 
 http://flask.pocoo.org/, and the extensions FlaskWTF, 
 https://flask-wtf.readthedocs.org/en/latest/, and WTForms, 
